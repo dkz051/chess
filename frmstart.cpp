@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QHostAddress>
 
-#include "globals.h"
+#include "global.h"
 #include "frmmain.h"
 #include "ui_frmstart.h"
 

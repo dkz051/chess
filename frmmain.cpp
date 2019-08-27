@@ -4,6 +4,7 @@
 #include <QPaintEvent>
 
 #include "frmstart.h"
+#include "graphics.h"
 #include "ui_frmmain.h"
 
 frmMain::frmMain(QWidget *parent) :
@@ -12,6 +13,8 @@ frmMain::frmMain(QWidget *parent) :
 	ui->setupUi(this);
 
 	ui->canvas->installEventFilter(this);
+
+	chessboard.defaultChessboard();
 }
 
 frmMain::~frmMain() {
@@ -23,9 +26,9 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 		auto p = static_cast<QWidget *>(o);
 		if (e->type() == QEvent::Paint) {
 			auto ev = static_cast<QPaintEvent *>(e);
-			QPainter *g = new QPainter(ui->canvas);
+			QPainter *g = new QPainter(p);
 			g->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
-			//renderChecker();
+			renderChessboard(g, p->width(), p->height(), chessboard);
 			delete g;
 		}
 	}

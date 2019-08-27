@@ -1,10 +1,13 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include <QImage>
 #include <QPainter>
 #include <QIntegerForSize>
 
 #include "global.h"
+
+void initializeGraphics();
 
 qint32 getChessboardGridSize(qint32 width, qint32 height);
 
