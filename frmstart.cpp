@@ -7,7 +7,7 @@
 #include "globals.h"
 #include "ui_frmstart.h"
 
-frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart), tcpServer(nullptr), tcpSocket(nullptr) {
+frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart) {
 	ui->setupUi(this);
 
 	this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
