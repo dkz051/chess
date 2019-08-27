@@ -72,7 +72,9 @@ void frmStart::on_btnStart_clicked() {
 void frmStart::on_btnCancel_clicked()
 {
 	if (ui->optServer->isChecked()) {
-		tcpSocket->close();
+		if (tcpSocket != nullptr) {
+			tcpSocket->close();
+		}
 		tcpServer->close();
 	} else {
 		tcpSocket->close();
