@@ -70,8 +70,7 @@ void frmStart::on_btnStart_clicked() {
 	}
 }
 
-void frmStart::on_btnCancel_clicked()
-{
+void frmStart::on_btnCancel_clicked() {
 	if (ui->optServer->isChecked()) {
 		if (tcpSocket != nullptr) {
 			tcpSocket->close();
@@ -92,6 +91,7 @@ void frmStart::on_btnCancel_clicked()
 
 void frmStart::onServerConnected() {
 	tcpSocket = tcpServer->nextPendingConnection();
+	tcpServer->pauseAccepting();
 	ui->btnStart->setText(tr("Connected!"));
 }
 
