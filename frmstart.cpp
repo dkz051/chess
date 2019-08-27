@@ -89,4 +89,5 @@ void frmStart::on_btnCancel_clicked()
 
 void frmStart::newConnection() {
 	tcpSocket = tcpServer->nextPendingConnection();
+	ui->btnStart->setText(tr("Connected!"));
 }
