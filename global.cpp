@@ -23,11 +23,11 @@ void Chessboard::defaultChessboard() {
 	chessboard[4][0] = Piece(RoleType::Black, PieceType::King);
 
 	for (qint32 i = 0; i < size; ++i) {
-		chessboard[i][6] = Piece(RoleType::White, PieceType::Pawn);
 		chessboard[i][1] = Piece(RoleType::Black, PieceType::Pawn);
 		for (qint32 j = 2; j < 6; ++j) {
 			chessboard[i][j] = Piece(RoleType::Neither, PieceType::None);
 		}
+		chessboard[i][6] = Piece(RoleType::White, PieceType::Pawn);
 	}
 }
 

@@ -29,7 +29,6 @@ bool frmStart::checkIpPort() {
 		QMessageBox::warning(this, tr("Error"), tr("Illegal port."));
 		return false;
 	} else {
-		//QMessageBox::information(this, tr("Okay!"), tr("Correct IP address and correct port."));
 		return true;
 	}
 }
@@ -94,14 +93,14 @@ void frmStart::onServerConnected() {
 	tcpServer->pauseAccepting();
 
 	frmMain *dlgMain = new frmMain;
+	dlgMain->setWindowTitle("Chess! Server");
 	dlgMain->show();
-
 	this->close();
 }
 
 void frmStart::onClientConnected() {
 	frmMain *dlgMain = new frmMain;
+	dlgMain->setWindowTitle("Chess! Client");
 	dlgMain->show();
-
 	this->close();
 }

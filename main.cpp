@@ -8,9 +8,6 @@ int main(int argc, char *argv[]) {
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-	//QFont font;
-	//font.defaultFamily()
-
 	QApplication app(argc, argv);
 	frmStart *dlgStart = new frmStart;
 	dlgStart->show();
