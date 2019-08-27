@@ -18,7 +18,8 @@ private slots:
 	void on_btnStart_clicked();
 	bool checkIpPort();
 
-	void newConnection();
+	void onServerConnected();
+	void onClientConnected();
 
 	void on_btnCancel_clicked();
 

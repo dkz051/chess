@@ -58,7 +58,7 @@ void frmStart::on_btnStart_clicked() {
 	if (ui->optServer->isChecked()) {
 		if (tcpServer == nullptr) {
 			tcpServer = new QTcpServer;
-			connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newConnection()));
+			connect(tcpServer, SIGNAL(onServerConnected()), this, SLOT(onServerConnected()));
 		}
 		tcpServer->listen(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
 	} else {
@@ -66,6 +66,7 @@ void frmStart::on_btnStart_clicked() {
 			tcpSocket = new QTcpSocket;
 		}
 		tcpSocket->connectToHost(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
+		connect(tcpSocket, SIGNAL(connected()), this, SLOT(onClientConnected()));
 	}
 }
 
@@ -89,7 +90,11 @@ void frmStart::on_btnCancel_clicked()
 	ui->txtPort->setEnabled(true);
 }
 
-void frmStart::newConnection() {
+void frmStart::onServerConnected() {
 	tcpSocket = tcpServer->nextPendingConnection();
+	ui->btnStart->setText(tr("Connected!"));
+}
+
+void frmStart::onClientConnected() {
 	ui->btnStart->setText(tr("Connected!"));
 }
