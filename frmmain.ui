@@ -22,8 +22,8 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
+    <item>
      <widget class="QWidget" name="canvas" native="true"/>
     </item>
    </layout>

@@ -26,14 +26,16 @@ CONFIG += c++11
 
 SOURCES += \
         frmstart.cpp \
-        globals.cpp \
+        global.cpp \
+        graphics.cpp \
         main.cpp \
         frmmain.cpp
 
 HEADERS += \
         frmmain.h \
         frmstart.h \
-        globals.h
+        global.h \
+        graphics.h
 
 FORMS += \
         frmmain.ui \
@@ -43,3 +45,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+	chess.qrc

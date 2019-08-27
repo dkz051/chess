@@ -5,6 +5,7 @@
 #include <QHostAddress>
 
 #include "globals.h"
+#include "frmmain.h"
 #include "ui_frmstart.h"
 
 frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart) {
@@ -54,7 +55,6 @@ void frmStart::on_btnStart_clicked() {
 	ui->txtServerIp->setEnabled(false);
 	ui->txtPort->setEnabled(false);
 
-
 	if (ui->optServer->isChecked()) {
 		if (tcpServer == nullptr) {
 			tcpServer = new QTcpServer;
@@ -73,14 +73,14 @@ void frmStart::on_btnStart_clicked() {
 void frmStart::on_btnCancel_clicked() {
 	if (ui->optServer->isChecked()) {
 		if (tcpSocket != nullptr) {
-			tcpSocket->close();
+			tcpSocket->abort();
 		}
 		tcpServer->close();
 	} else {
-		tcpSocket->close();
+		tcpSocket->abort();
 	}
 
-	ui->btnCancel->setEnabled(true);
+	ui->btnCancel->setEnabled(false);
 	ui->btnStart->setEnabled(true);
 
 	ui->btnStart->setText(tr("S&tart"));
@@ -92,9 +92,16 @@ void frmStart::on_btnCancel_clicked() {
 void frmStart::onServerConnected() {
 	tcpSocket = tcpServer->nextPendingConnection();
 	tcpServer->pauseAccepting();
-	ui->btnStart->setText(tr("Connected!"));
+
+	frmMain *dlgMain = new frmMain;
+	dlgMain->show();
+
+	this->close();
 }
 
 void frmStart::onClientConnected() {
-	ui->btnStart->setText(tr("Connected!"));
+	frmMain *dlgMain = new frmMain;
+	dlgMain->show();
+
+	this->close();
 }

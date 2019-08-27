@@ -49,15 +49,21 @@
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="1">
         <widget class="QLineEdit" name="txtPort">
-         <property name="placeholderText">
+         <property name="text">
           <string>2333</string>
+         </property>
+         <property name="placeholderText">
+          <string/>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="txtServerIp">
-         <property name="placeholderText">
+         <property name="text">
           <string>127.0.0.1</string>
+         </property>
+         <property name="placeholderText">
+          <string/>
          </property>
         </widget>
        </item>
@@ -121,6 +127,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>optServer</tabstop>
+  <tabstop>optClient</tabstop>
+  <tabstop>txtServerIp</tabstop>
+  <tabstop>txtPort</tabstop>
+  <tabstop>btnStart</tabstop>
+  <tabstop>btnCancel</tabstop>
+  <tabstop>btnExit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

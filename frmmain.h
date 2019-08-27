@@ -4,6 +4,8 @@
 #include <QtNetwork>
 #include <QMainWindow>
 
+#include "global.h"
+
 namespace Ui {
 	class frmMain;
 }
@@ -16,10 +18,14 @@ public:
 	~frmMain();
 
 public slots:
-	//void onConnected();
+
+protected:
+	bool eventFilter(QObject *o, QEvent *e);
 
 private:
 	Ui::frmMain *ui;
+
+	Chessboard chessboard;
 };
 
 #endif // FRMMAIN_H
