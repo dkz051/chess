@@ -1,4 +1,6 @@
 #include "frmmain.h"
+
+#include "frmstart.h"
 #include "ui_frmmain.h"
 
 frmMain::frmMain(QWidget *parent) :

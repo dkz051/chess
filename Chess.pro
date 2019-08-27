@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,14 +25,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        frmstart.cpp \
+        globals.cpp \
         main.cpp \
         frmmain.cpp
 
 HEADERS += \
-        frmmain.h
+        frmmain.h \
+        frmstart.h \
+        globals.h
 
 FORMS += \
-        frmmain.ui
+        frmmain.ui \
+        frmstart.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
