@@ -58,15 +58,15 @@ void frmStart::on_btnStart_clicked() {
 	if (ui->optServer->isChecked()) {
 		if (tcpServer == nullptr) {
 			tcpServer = new QTcpServer;
-			connect(tcpServer, SIGNAL(onServerConnected()), this, SLOT(onServerConnected()));
+			connect(tcpServer, SIGNAL(newConnection()), this, SLOT(onServerConnected()));
 		}
 		tcpServer->listen(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
 	} else {
 		if (tcpSocket == nullptr) {
 			tcpSocket = new QTcpSocket;
+			connect(tcpSocket, SIGNAL(connected()), this, SLOT(onClientConnected()));
 		}
 		tcpSocket->connectToHost(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
-		connect(tcpSocket, SIGNAL(connected()), this, SLOT(onClientConnected()));
 	}
 }
 
