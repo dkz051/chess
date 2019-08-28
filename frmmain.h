@@ -38,7 +38,8 @@ private:
 	QTcpServer *tcpServer = nullptr;
 	QTcpSocket *tcpSocket = nullptr;
 
-	QByteArray buffer;
+	QByteArray dataBuffer;
+	bool connected = false;
 };
 
 #endif // FRMMAIN_H

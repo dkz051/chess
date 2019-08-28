@@ -17,16 +17,26 @@ typedef std::pair<RoleType, PieceType> Piece;
 typedef std::pair<qint32, qint32> Position;
 
 const qint32 ranks = 8;
+const qint32 baseRankWhite = 0;
+const qint32 baseRankBlack = 7;
+const qint32 pawnStartRankWhite = 6;
+const qint32 pawnStartRankBlack = 1;
 
-const qint32 dir4X[4] = {0, 0, 1, -1};
-const qint32 dir4Y[4] = {-1, 1, 0, 0};
 const qint32 dir8X[8] = {0, 0, 1, -1, -1, -1, 1, 1};
 const qint32 dir8Y[8] = {-1, 1, 0, 0, -1, 1, -1, 1};
 const qint32 dirKnightX[8] = {-2, -1, 1, 2, 2, 1, -1, -2};
 const qint32 dirKnightY[8] = {1, 2, 2, 1, -1, -2, -2, -1};
+const qint32 dirPawnAttackX[2] = {-1, 1};
+const qint32 dirPawnAttackYWhite[2] = {-1, -1};
+const qint32 dirPawnAttackYBlack[2] = {1, 1};
+const qint32 dirPawnMoveX[2] = {0, 0};
+const qint32 dirPawnMoveYWhite[2] = {-1, -2};
+const qint32 dirPawnMoveYBlack[2] = {1, 2};
 
 const QColor colorDark(181, 135, 99, 255);
 const QColor colorLight(240, 218, 181, 255);
+
+const QColor colorMoveTarget(255, 0, 0, 192);
 
 const QMap<Piece, QImage> pieceToImage({
 	std::make_pair(Piece(RoleType::White, PieceType::King), QImage("://img/white_king.png")),

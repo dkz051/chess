@@ -30,7 +30,18 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
     <item>
-     <widget class="QWidget" name="canvas" native="true"/>
+     <widget class="QWidget" name="canvas" native="true">
+      <widget class="QTextBrowser" name="txtBuffer">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>256</width>
+         <height>192</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>

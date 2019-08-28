@@ -6,6 +6,7 @@
 
 #include "frmstart.h"
 #include "graphics.h"
+#include "controller.h"
 #include "ui_frmmain.h"
 
 frmMain::frmMain(QWidget *parent) : QMainWindow(parent), ui(new Ui::frmMain) {
@@ -33,45 +34,49 @@ void frmMain::setNetWork(QTcpServer *server, QTcpSocket *socket) {
 
 void frmMain::setRole(RoleType role) {
 	this->role = role;
+	connected = true;
+	this->update();
 }
 
 bool frmMain::eventFilter(QObject *o, QEvent *e) {
+	if (!connected) {
+		return false;
+	}
 	if (o == ui->canvas) {
 		auto p = static_cast<QWidget *>(o);
 		if (e->type() == QEvent::Paint) {
 			QPainter *g = new QPainter(p);
 			g->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
-			renderChessboard(g, p->width(), p->height(), role, chessboard);
+			renderChessboard(g, p->width(), p->height(), role);
+			renderMoves(g, p->width(), p->height(), role, currentPosition, chessboard);
+			renderPieces(g, p->width(), p->height(), role, chessboard);
 			delete g;
 			return true;
 		} else if (e->type() == QEvent::MouseButtonPress) {
 			auto ev = static_cast<QMouseEvent *>(e);
-			Position position = getPositionXY(ev->x(), ev->y(), p->width(), p->height());
+			Position position = getPositionXY(ev->x(), ev->y(), p->width(), p->height(), role);
 			if (position.first < 0 || position.first >= ranks || position.second < 0 || position.second >= ranks) {
 				currentPosition = nullPosition;
-			} else if (chessboard[position.first][position.second].first != role) {
-				currentPosition = nullPosition;
-			} else if (currentPosition == nullPosition) {
+			} else if (chessboard[position.first][position.second].first == role) {
 				currentPosition = position;
-			}/*else if (attack(currentPosition, position)) {
+			} else if (isMovePossible(currentPosition, position, role, chessboard)) {
 				// move;
-			}*/
+			} else {
+				currentPosition = nullPosition;
+			}
+			this->update();
+			return true;
 		}
 	}
 	return false;
 }
 
 void frmMain::dataArrival() {
-	buffer.append(tcpSocket->readAll());
-	bool flag = (buffer.back() == ';');
+	dataBuffer.append(tcpSocket->readAll());
 
-	QList<QByteArray> arrays = buffer.split(';');
-	if (flag) {
-		buffer.clear();
-	} else {
-		buffer = arrays.back();
-		arrays.pop_back();
-	}
+	QList<QByteArray> arrays = dataBuffer.split(';');
+	dataBuffer = arrays.back();
+	arrays.pop_back();
 
 	for (qint32 i = 0; i < arrays.size(); ++i) {
 		QList<QString> tokens = QString::fromUtf8(arrays[i]).split(' ');
@@ -79,7 +84,9 @@ void frmMain::dataArrival() {
 		if (tokens[0] == "role") {
 			assert(tokens.size() == 2);
 			assert(tokens[1] == "white" || tokens[1] == "black");
-			role = (tokens[1] == "white" ? RoleType::White : RoleType::Black);
+			setRole(tokens[1] == "white" ? RoleType::White : RoleType::Black);
+		} else if (tokens[0] == "hello") {
+			tcpSocket->write(QString("role %1;").arg(role == RoleType::White ? "black" : "white").toUtf8());
 		}
 	}
 }

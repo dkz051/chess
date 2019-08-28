@@ -2,9 +2,6 @@
 
 #include <cstring>
 
-//QTcpServer *tcpServer = nullptr;
-//QTcpSocket *tcpSocket = nullptr;
-
 Chessboard::Chessboard() {
 	memset(chessboard, 0, sizeof chessboard);
 }
