@@ -7,10 +7,10 @@
 
 #include "global.h"
 
-void initializeGraphics();
-
 qint32 getChessboardGridSize(qint32 width, qint32 height);
+Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height);
 
-void renderChessboard(QPainter *canvas, qint32 width, qint32 height, const Chessboard &chessboard);
+void renderChessboard(QPainter *canvas, qint32 width, qint32 height, RoleType role, const Chessboard &chessboard);
+void renderAttacks(QPainter *canvas, qint32 width, qint32 height, Position position, const Chessboard &chessboard);
 
 #endif // RENDER_H

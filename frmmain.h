@@ -2,6 +2,7 @@
 #define FRMMAIN_H
 
 #include <QtNetwork>
+#include <QByteArray>
 #include <QMainWindow>
 
 #include "global.h"
@@ -18,6 +19,11 @@ public:
 	~frmMain();
 
 public slots:
+	void setNetWork(QTcpServer *server, QTcpSocket *socket);
+	void setRole(RoleType role);
+
+private slots:
+	void dataArrival();
 
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
@@ -25,7 +31,14 @@ protected:
 private:
 	Ui::frmMain *ui;
 
-	Chessboard chessboard;
+	RoleType role = RoleType::Neither;
+	Chessboard chessboard = Chessboard::defaultChessboard();
+	Position currentPosition = nullPosition;
+
+	QTcpServer *tcpServer = nullptr;
+	QTcpSocket *tcpSocket = nullptr;
+
+	QByteArray buffer;
 };
 
 #endif // FRMMAIN_H

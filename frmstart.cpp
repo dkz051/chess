@@ -1,6 +1,7 @@
 #include "frmstart.h"
 
 #include <QRegExp>
+#include <QByteArray>
 #include <QMessageBox>
 #include <QHostAddress>
 
@@ -92,8 +93,14 @@ void frmStart::onServerConnected() {
 	tcpSocket = tcpServer->nextPendingConnection();
 	tcpServer->pauseAccepting();
 
+	RoleType role = rand() % 2 ? RoleType::White : RoleType::Black;
+
+	tcpSocket->write(QString("role %1;").arg(role == RoleType::White ? "black" : "white").toUtf8());
+
 	frmMain *dlgMain = new frmMain;
 	dlgMain->setWindowTitle("Chess! Server");
+	dlgMain->setNetWork(tcpServer, tcpSocket);
+	dlgMain->setRole(role);
 	dlgMain->show();
 	this->close();
 }
@@ -101,6 +108,7 @@ void frmStart::onServerConnected() {
 void frmStart::onClientConnected() {
 	frmMain *dlgMain = new frmMain;
 	dlgMain->setWindowTitle("Chess! Client");
+	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->show();
 	this->close();
 }

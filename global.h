@@ -14,8 +14,9 @@ enum PieceType { King = 0, Queen, Rook, Bishop, Knight, Pawn, None };
 enum CommandType { Role = 0, Move, Castling, Draw, Surrender, Message, Exit };
 
 typedef std::pair<RoleType, PieceType> Piece;
+typedef std::pair<qint32, qint32> Position;
 
-const qint32 size = 8;
+const qint32 ranks = 8;
 
 const qint32 dir4X[4] = {0, 0, 1, -1};
 const qint32 dir4Y[4] = {-1, 1, 0, 0};
@@ -47,16 +48,20 @@ const QMap<Piece, QImage> pieceToImage({
 	std::make_pair(Piece(RoleType::Neither, PieceType::None), QImage("://img/none.png"))
 });
 
+const Position nullPosition(-1, -1);
+
 struct Chessboard {
-	Piece chessboard[size][size];
+	Piece chessboard[ranks][ranks];
 
 	Chessboard();
-	void defaultChessboard();
+	static Chessboard defaultChessboard();
 	Piece *operator[](const qint32 &index);
 	const Piece *operator[](const qint32 &index) const;
+	//QString toForsythEdwards() const;
+	//static Chessboard fromForsythEdwards(const QString &fen);
 };
 
-extern QTcpServer *tcpServer;
-extern QTcpSocket *tcpSocket;
+//extern QTcpServer *tcpServer;
+//extern QTcpSocket *tcpSocket;
 
 #endif // GLOBALS_H

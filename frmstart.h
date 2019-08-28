@@ -2,6 +2,7 @@
 #define FRMSTART_H
 
 #include <QDialog>
+#include <QtNetwork>
 
 namespace Ui {
 	class frmStart;
@@ -25,6 +26,9 @@ private slots:
 
 private:
 	Ui::frmStart *ui;
+
+	QTcpServer *tcpServer = nullptr;
+	QTcpSocket *tcpSocket = nullptr;
 };
 
 #endif // FRMSTART_H
