@@ -26,6 +26,7 @@ CONFIG += c++17
 
 SOURCES += \
         controller.cpp \
+        frmpromote.cpp \
         frmstart.cpp \
         global.cpp \
         graphics.cpp \
@@ -35,12 +36,14 @@ SOURCES += \
 HEADERS += \
         controller.h \
         frmmain.h \
+        frmpromote.h \
         frmstart.h \
         global.h \
         graphics.h
 
 FORMS += \
         frmmain.ui \
+        frmpromote.ui \
         frmstart.ui
 
 # Default rules for deployment.

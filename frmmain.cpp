@@ -7,6 +7,7 @@
 #include "frmstart.h"
 #include "graphics.h"
 #include "controller.h"
+#include "frmpromote.h"
 #include "ui_frmmain.h"
 
 frmMain::frmMain(QWidget *parent) : QMainWindow(parent), ui(new Ui::frmMain) {
@@ -76,6 +77,19 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 			} else if (chessboard[position].first == role) {
 				currentPosition = position;
 			} else if (isMovePossible(currentPosition, position, role, chessboard)) {
+				ChessmanType promoteTo = ChessmanType::None;
+
+				if (chessboard[currentPosition].second == ChessmanType::Pawn) {
+					if (position.second == (role == RoleType::White ? baseRankWhite : baseRankBlack)) {
+						frmPromote *dlgPromote = new frmPromote(this);
+						dlgPromote->setRole(role);
+						promoteTo = ChessmanType(dlgPromote->exec());
+						if (promoteTo == ChessmanType::None) {
+							return false;
+						}
+					}
+				}
+
 				timer.stop();
 
 				bool winFlag = (chessboard[position].second == ChessmanType::King);
@@ -83,8 +97,16 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 				moveChessman(currentPosition, position, chessboard);
 				sendMessage(tcpSocket, QString("move %1 %2 %3 %4;").arg(currentPosition.first).arg(currentPosition.second).arg(position.first).arg(position.second));
 
+				if (promoteTo != ChessmanType::None) {
+					sendMessage(tcpSocket, QString("promote %1 %2 %3;").arg(position.first).arg(position.second).arg(qint32(promoteTo)));
+
+					chessboard[position] = Chessman(role, promoteTo);
+				}
+
 				assert(currentRole != RoleType::Neither);
 				currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+
+				currentPosition = nullPosition;
 
 				if (winFlag) {
 					sendMessage(tcpSocket, "captured;");
@@ -151,6 +173,9 @@ void frmMain::dataArrival() {
 
 			gameWon(tr("Your opponent's clock has timed out. You've won!"));
 			this->close();
+		} else if (tokens[0] == "promote") {
+			assert(tokens.size() == 4);
+			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(role == RoleType::White ? RoleType::Black : RoleType::White, ChessmanType(tokens[3].toInt()));
 		}
 	}
 }

@@ -10,8 +10,8 @@
 #include <QIntegerForSize>
 
 enum RoleType { White = 7, Black = 0, Neither = 1 };
-enum ChessmanType { King = 0, Queen, Rook, Bishop, Knight, Pawn, None };
-enum CommandType { Role = 0, Move, Castling, Draw, Surrender, Message, Exit };
+enum ChessmanType { King = 4, Queen = 10, Rook = 5, Bishop = 3, Knight = 2, Pawn = 1, None = 99 };
+//enum CommandType { Role = 0, Move, Castling, Draw, Surrender, Message, Exit };
 
 typedef std::pair<RoleType, ChessmanType> Chessman;
 typedef std::pair<qint32, qint32> Position;
@@ -40,7 +40,7 @@ const QColor colorLight(240, 218, 181, 255);
 
 const QColor colorMoveTarget(255, 0, 0, 192);
 
-const qint32 timeoutMove = 15;
+const qint32 timeoutMove = 150;
 const qint32 timeoutConnection = 15;
 
 const qint32 milli = 1000;
@@ -64,7 +64,7 @@ const QMap<Chessman, QImage> chessmanToImage({
 	std::make_pair(Chessman(RoleType::Black, ChessmanType::Pawn), QImage("://img/black_pawn.png")),
 	std::make_pair(Chessman(RoleType::Black, ChessmanType::None), QImage("://img/none.png")),
 
-	std::make_pair(Chessman(RoleType::Neither, ChessmanType::None), QImage("://img/none.png"))
+	std::make_pair(nullChessman, QImage("://img/none.png"))
 });
 
 const Position nullPosition(-1, -1);
