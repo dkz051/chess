@@ -1,6 +1,7 @@
 #ifndef FRMSTART_H
 #define FRMSTART_H
 
+#include <QTimer>
 #include <QDialog>
 #include <QtNetwork>
 
@@ -24,11 +25,14 @@ private slots:
 
 	void on_btnCancel_clicked();
 
+	void onConnectionTimeout();
 private:
 	Ui::frmStart *ui;
 
 	QTcpServer *tcpServer = nullptr;
 	QTcpSocket *tcpSocket = nullptr;
+
+	QTimer timer = QTimer(this);
 };
 
 #endif // FRMSTART_H

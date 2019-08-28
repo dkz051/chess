@@ -20,10 +20,12 @@ public:
 
 public slots:
 	void setNetWork(QTcpServer *server, QTcpSocket *socket);
-	void setRole(RoleType role);
+	void setGame(RoleType role);
 
 private slots:
 	void dataArrival();
+
+	void on_btnResign_clicked();
 
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
@@ -40,6 +42,7 @@ private:
 
 	QByteArray dataBuffer;
 	bool connected = false;
+	RoleType currentRole = RoleType::White;
 };
 
 #endif // FRMMAIN_H

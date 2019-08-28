@@ -7,6 +7,7 @@
 
 #include "global.h"
 #include "frmmain.h"
+#include "controller.h"
 #include "ui_frmstart.h"
 
 frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart) {
@@ -14,6 +15,9 @@ frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart) {
 
 	this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 	this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
+
+	timer.setInterval(timeoutConnection * milli);
+	connect(&timer, SIGNAL(timeout()), this, SLOT(onConnectionTimeout()));
 }
 
 frmStart::~frmStart() {
@@ -57,17 +61,19 @@ void frmStart::on_btnStart_clicked() {
 
 	if (ui->optServer->isChecked()) {
 		if (tcpServer == nullptr) {
-			tcpServer = new QTcpServer;
+			tcpServer = new QTcpServer(this);
 			connect(tcpServer, SIGNAL(newConnection()), this, SLOT(onServerConnected()));
 		}
 		tcpServer->listen(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
 	} else {
 		if (tcpSocket == nullptr) {
-			tcpSocket = new QTcpSocket;
+			tcpSocket = new QTcpSocket(this);
 			connect(tcpSocket, SIGNAL(connected()), this, SLOT(onClientConnected()));
 		}
 		tcpSocket->connectToHost(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
 	}
+
+	timer.start();
 }
 
 void frmStart::on_btnCancel_clicked() {
@@ -90,24 +96,34 @@ void frmStart::on_btnCancel_clicked() {
 }
 
 void frmStart::onServerConnected() {
+	timer.stop();
+
 	tcpSocket = tcpServer->nextPendingConnection();
 	tcpServer->pauseAccepting();
+	RoleType role = (rand() % 2 == 0) ? RoleType::White : RoleType::Black;
+
+	sendMessage(tcpSocket, QString("role %1;").arg(role == RoleType::White ? "black" : "white"));
 
 	frmMain *dlgMain = new frmMain;
 	dlgMain->setWindowTitle("Chess! Server");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
-	dlgMain->setRole((rand() % 2 == 0) ? RoleType::White : RoleType::Black);
+	dlgMain->setGame(role);
 	dlgMain->show();
 	this->close();
 }
 
 void frmStart::onClientConnected() {
+	timer.stop();
+
 	frmMain *dlgMain = new frmMain;
 	dlgMain->setWindowTitle("Chess! Client");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->show();
-
-	tcpSocket->write(QString("hello;").toUtf8());
-
 	this->close();
+}
+
+void frmStart::onConnectionTimeout() {
+	timer.stop();
+	on_btnCancel_clicked();
+	QMessageBox::warning(this, tr("Cannot Start Game"), tr("Connection timed out.\nPlease check your system network settings or IP/port configuration."));
 }

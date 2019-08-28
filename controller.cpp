@@ -2,6 +2,11 @@
 
 #include "graphics.h"
 
+void sendMessage(QTcpSocket *tcpSocket, const QString &message) {
+	tcpSocket->write(message.toUtf8());
+	tcpSocket->flush();
+}
+
 Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height, RoleType role) {
 	qint32 gridSize = getChessboardGridSize(width, height);
 	if (role == RoleType::White) {
@@ -15,26 +20,26 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 	assert(role != RoleType::Neither);
 
 	QVector<Position> ans;
-	switch (PieceType type = chessboard[from.first][from.second].second; type) {
-		case PieceType::King:
-		case PieceType::Knight: {
-			const auto dirX = (type == PieceType::King ? dir8X : dirKnightX);
-			const auto dirY = (type == PieceType::King ? dir8Y : dirKnightY);
+	switch (ChessmanType type = chessboard[from].second; type) {
+		case ChessmanType::King:
+		case ChessmanType::Knight: {
+			const auto dirX = (type == ChessmanType::King ? dir8X : dirKnightX);
+			const auto dirY = (type == ChessmanType::King ? dir8Y : dirKnightY);
 			for (qint32 k = 0; k < 8; ++k) {
 				qint32 x = from.first + dirX[k], y = from.second + dirY[k];
-				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == PieceType::None) {
+				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role) {
 					ans.push_back(Position(x, y));
 				}
 			}
 			break;
 		}
-		case PieceType::Queen:
-		case PieceType::Rook:
-		case PieceType::Bishop: {
+		case ChessmanType::Queen:
+		case ChessmanType::Rook:
+		case ChessmanType::Bishop: {
 			qint32 begin = 0, end = 8;
-			if (type == PieceType::Rook) {
+			if (type == ChessmanType::Rook) {
 				end = 4;
-			} else if (type == PieceType::Bishop) {
+			} else if (type == ChessmanType::Bishop) {
 				begin = 4;
 			}
 			for (qint32 k = begin; k < end; ++k) {
@@ -42,8 +47,13 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 				while (true) {
 					x += dir8X[k];
 					y += dir8Y[k];
-					if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == PieceType::None) {
-						ans.push_back(Position(x, y));
+					if (x >= 0 && x < ranks && y >= 0 && y < ranks) {
+						if (chessboard[x][y].first != role) {
+							ans.push_back(Position(x, y));
+						}
+						if (chessboard[x][y].second != ChessmanType::None) {
+							break;
+						}
 					} else {
 						break;
 					}
@@ -51,17 +61,17 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 			}
 			break;
 		}
-		case PieceType::Pawn: {
+		case ChessmanType::Pawn: {
 			auto dirPawnAttackY = (role == RoleType::White ? dirPawnAttackYWhite : dirPawnAttackYBlack);
 			for (qint32 k = 0; k < 2; ++k) {
 				qint32 x = from.first + dirPawnAttackX[k], y = from.second + dirPawnAttackY[k];
-				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == PieceType::None) {
+				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role && chessboard[x][y].first != RoleType::Neither) {
 					ans.push_back(Position(x, y));
 				}
 			}
 			break;
 		}
-		case PieceType::None: {
+		case ChessmanType::None: {
 			break;
 		}
 	}
@@ -70,26 +80,28 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 
 QVector<Position> moveRange(Position from, RoleType role, const Chessboard &chessboard) {
 	QVector<Position> ans = attackRange(from, role, chessboard);
-	switch (PieceType type = chessboard[from.first][from.second].second; type) {
-		case PieceType::King:
-		case PieceType::Knight:
-		case PieceType::Queen:
-		case PieceType::Rook:
-		case PieceType::Bishop: {
+	switch (ChessmanType type = chessboard[from].second; type) {
+		case ChessmanType::King:
+		case ChessmanType::Knight:
+		case ChessmanType::Queen:
+		case ChessmanType::Rook:
+		case ChessmanType::Bishop: {
 			break;
 		}
-		case PieceType::Pawn: {
+		case ChessmanType::Pawn: {
 			auto dirPawnMoveY = (role == RoleType::White ? dirPawnMoveYWhite : dirPawnMoveYBlack);
 			qint32 startRank = (role == RoleType::White ? pawnStartRankWhite : pawnStartRankBlack);
 			for (qint32 k = 0; k < (from.second == startRank ? 2 : 1); ++k) {
 				qint32 x = from.first + dirPawnMoveX[k], y = from.second + dirPawnMoveY[k];
-				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == PieceType::None) {
+				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == ChessmanType::None) {
 					ans.push_back(Position(x, y));
+				} else {
+					break;
 				}
 			}
 			break;
 		}
-		case PieceType::None: {
+		case ChessmanType::None: {
 			break;
 		}
 	}
@@ -102,4 +114,10 @@ bool isAttacking(Position from, Position to, RoleType fromRole, const Chessboard
 
 bool isMovePossible(Position from, Position to, RoleType fromRole, const Chessboard &chessboard) {
 	return moveRange(from, fromRole, chessboard).indexOf(to) != -1;
+}
+
+void moveChessman(Position from, Position to, Chessboard &chessboard) {
+	// Assuming that this move is legal
+	chessboard[to] = chessboard[from];
+	chessboard[from] = nullChessman;
 }

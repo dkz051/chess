@@ -52,7 +52,7 @@ void renderPieces(QPainter *canvas, qint32 width, qint32 height, RoleType role, 
 				rect = QRect((ranks - 1 - i) * gridSize, (ranks - 1 - j) * gridSize, gridSize, gridSize);
 			}
 
-			canvas->drawImage(rect, pieceToImage[chessboard[i][j]]);
+			canvas->drawImage(rect, chessmanToImage[chessboard[i][j]]);
 		}
 	}
 

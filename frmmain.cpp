@@ -1,6 +1,7 @@
 #include "frmmain.h"
 
 #include <QPainter>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
@@ -32,7 +33,7 @@ void frmMain::setNetWork(QTcpServer *server, QTcpSocket *socket) {
 	connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(dataArrival()));
 }
 
-void frmMain::setRole(RoleType role) {
+void frmMain::setGame(RoleType role) {
 	this->role = role;
 	connected = true;
 	this->update();
@@ -53,14 +54,31 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 			delete g;
 			return true;
 		} else if (e->type() == QEvent::MouseButtonPress) {
+			if (role != currentRole) {
+				currentPosition = nullPosition;
+				return false;
+			}
 			auto ev = static_cast<QMouseEvent *>(e);
 			Position position = getPositionXY(ev->x(), ev->y(), p->width(), p->height(), role);
 			if (position.first < 0 || position.first >= ranks || position.second < 0 || position.second >= ranks) {
 				currentPosition = nullPosition;
-			} else if (chessboard[position.first][position.second].first == role) {
+			} else if (chessboard[position].first == role) {
 				currentPosition = position;
 			} else if (isMovePossible(currentPosition, position, role, chessboard)) {
-				// move;
+				bool winFlag = (chessboard[position].second == ChessmanType::King);
+
+				moveChessman(currentPosition, position, chessboard);
+				sendMessage(tcpSocket, QString("move %1 %2 %3 %4;").arg(currentPosition.first).arg(currentPosition.second).arg(position.first).arg(position.second));
+
+				assert(currentRole != RoleType::Neither);
+				currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+
+				if (winFlag) {
+					sendMessage(tcpSocket, "captured;");
+					QMessageBox::information(this, tr("You Won!"), tr("You've successfully captured your opponent's king!"));
+					this->close();
+					return true;
+				}
 			} else {
 				currentPosition = nullPosition;
 			}
@@ -80,13 +98,33 @@ void frmMain::dataArrival() {
 
 	for (qint32 i = 0; i < arrays.size(); ++i) {
 		QList<QString> tokens = QString::fromUtf8(arrays[i]).split(' ');
+
+		ui->txtCommands->append(QString::fromUtf8(arrays[i]));
+
 		assert(tokens.size() > 0);
 		if (tokens[0] == "role") {
 			assert(tokens.size() == 2);
 			assert(tokens[1] == "white" || tokens[1] == "black");
-			setRole(tokens[1] == "white" ? RoleType::White : RoleType::Black);
-		} else if (tokens[0] == "hello") {
-			tcpSocket->write(QString("role %1;").arg(role == RoleType::White ? "black" : "white").toUtf8());
+			setGame(tokens[1] == "white" ? RoleType::White : RoleType::Black);
+		} else if (tokens[0] == "move") {
+			assert(tokens.size() == 5);
+			moveChessman(Position(tokens[1].toInt(), tokens[2].toInt()), Position(tokens[3].toInt(), tokens[4].toInt()), chessboard);
+			assert(currentRole != RoleType::Neither);
+			currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+			this->update();
+		} else if (tokens[0] == "captured") {
+			QMessageBox::warning(this, tr("Lost!"), tr("Congratulations -- your king has been captured!"));
+			this->close();
+		} else if (tokens[0] == "resign") {
+			QMessageBox::information(this, tr("You Won!"), tr("Your opponent has resigned. Congratulations!"));
+			this->close();
 		}
+	}
+}
+
+void frmMain::on_btnResign_clicked() {
+	if (QMessageBox::question(this, tr("Confirm?"), tr("Are you sure you want to resign?")) == QMessageBox::Yes) {
+		sendMessage(tcpSocket, "resign;");
+		this->close();
 	}
 }
