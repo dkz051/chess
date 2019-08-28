@@ -1,7 +1,6 @@
 #include "frmmain.h"
 
 #include <QPainter>
-#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
@@ -13,6 +12,11 @@
 frmMain::frmMain(QWidget *parent) : QMainWindow(parent), ui(new Ui::frmMain) {
 	ui->setupUi(this);
 	ui->canvas->installEventFilter(this);
+
+	timer.setInterval(10);
+	timer.stop();
+
+	connect(&timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
 frmMain::~frmMain() {
@@ -36,6 +40,13 @@ void frmMain::setNetWork(QTcpServer *server, QTcpSocket *socket) {
 void frmMain::setGame(RoleType role) {
 	this->role = role;
 	connected = true;
+	ticksLeft = timeoutMove * milli;
+	lastTick = QDateTime::currentMSecsSinceEpoch();
+	if (role == firstRole) {
+		timer.start();
+	} else {
+		timer.stop();
+	}
 	this->update();
 }
 
@@ -65,6 +76,8 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 			} else if (chessboard[position].first == role) {
 				currentPosition = position;
 			} else if (isMovePossible(currentPosition, position, role, chessboard)) {
+				timer.stop();
+
 				bool winFlag = (chessboard[position].second == ChessmanType::King);
 
 				moveChessman(currentPosition, position, chessboard);
@@ -75,7 +88,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 
 				if (winFlag) {
 					sendMessage(tcpSocket, "captured;");
-					QMessageBox::information(this, tr("You Won!"), tr("You've successfully captured your opponent's king!"));
+					gameWon(tr("You've successfully captured your opponent's king!"));
 					this->close();
 					return true;
 				}
@@ -108,23 +121,84 @@ void frmMain::dataArrival() {
 			setGame(tokens[1] == "white" ? RoleType::White : RoleType::Black);
 		} else if (tokens[0] == "move") {
 			assert(tokens.size() == 5);
+			timer.stop();
+
 			moveChessman(Position(tokens[1].toInt(), tokens[2].toInt()), Position(tokens[3].toInt(), tokens[4].toInt()), chessboard);
 			assert(currentRole != RoleType::Neither);
 			currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+
+			ticksLeft = timeoutMove * milli;
+			lastTick = QDateTime::currentMSecsSinceEpoch();
+			timer.start();
 			this->update();
 		} else if (tokens[0] == "captured") {
-			QMessageBox::warning(this, tr("Lost!"), tr("Congratulations -- your king has been captured!"));
+			assert(tokens.size() == 1);
+
+			gameLost(tr("Congratulations -- your king has been captured!"));
 			this->close();
 		} else if (tokens[0] == "resign") {
-			QMessageBox::information(this, tr("You Won!"), tr("Your opponent has resigned. Congratulations!"));
+			assert(tokens.size() == 1);
+
+			gameWon(tr("Your opponent has resigned. Congratulations!"));
+			this->close();
+		} else if (tokens[0] == "countdown") {
+			assert(tokens.size() == 2);
+
+			qint64 ticks = tokens[1].toInt();
+			ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(ticks / milli).arg((ticks % milli) / 10, 2, 10, QChar('0')));
+		} else if (tokens[0] == "timeout") {
+			assert(tokens.size() == 1);
+
+			gameWon(tr("Your opponent's clock has timed out. You've won!"));
 			this->close();
 		}
 	}
 }
 
 void frmMain::on_btnResign_clicked() {
-	if (QMessageBox::question(this, tr("Confirm?"), tr("Are you sure you want to resign?")) == QMessageBox::Yes) {
+	if (resignConfirm.exec() == QMessageBox::Yes) {
 		sendMessage(tcpSocket, "resign;");
 		this->close();
 	}
+}
+
+void frmMain::onTimeout() {
+	qint64 thisTick = QDateTime::currentMSecsSinceEpoch();
+	ticksLeft = std::max(qint64(0), ticksLeft - (thisTick - lastTick));
+	lastTick = thisTick;
+	sendMessage(tcpSocket, QString("countdown %1;").arg(ticksLeft));
+	ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(ticksLeft / milli).arg((ticksLeft % milli) / 10, 2, 10, QChar('0')));
+	if (ticksLeft == 0) {
+		sendMessage(tcpSocket, "timeout;");
+		timer.stop();
+		gameLost(tr("The clock has timed out. You've lost!"));
+		this->close();
+	}
+}
+
+void frmMain::gameWon(const QString &prompt) {
+	resignConfirm.close();
+	QMessageBox::information(this, tr("You Won!"), prompt);
+
+	frmStart *dlgStart = new frmStart;
+	dlgStart->show();
+	this->close();
+}
+
+void frmMain::gameLost(const QString &prompt) {
+	resignConfirm.close();
+	QMessageBox::warning(this, tr("You Lost!"), prompt);
+
+	frmStart *dlgStart = new frmStart;
+	dlgStart->show();
+	this->close();
+}
+
+void frmMain::gameDrawn(const QString &prompt) {
+	resignConfirm.close();
+	QMessageBox::information(this, tr("Drawn!"), prompt);
+
+	frmStart *dlgStart = new frmStart;
+	dlgStart->show();
+	this->close();
 }

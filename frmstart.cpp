@@ -105,7 +105,7 @@ void frmStart::onServerConnected() {
 	sendMessage(tcpSocket, QString("role %1;").arg(role == RoleType::White ? "black" : "white"));
 
 	frmMain *dlgMain = new frmMain;
-	dlgMain->setWindowTitle("Chess! Server");
+	dlgMain->setWindowTitle("Chess Server");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->setGame(role);
 	dlgMain->show();
@@ -116,7 +116,7 @@ void frmStart::onClientConnected() {
 	timer.stop();
 
 	frmMain *dlgMain = new frmMain;
-	dlgMain->setWindowTitle("Chess! Client");
+	dlgMain->setWindowTitle("Chess Client");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->show();
 	this->close();

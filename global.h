@@ -45,6 +45,8 @@ const qint32 timeoutConnection = 15;
 
 const qint32 milli = 1000;
 
+const RoleType firstRole = RoleType::White;
+
 const QMap<Chessman, QImage> chessmanToImage({
 	std::make_pair(Chessman(RoleType::White, ChessmanType::King), QImage("://img/white_king.png")),
 	std::make_pair(Chessman(RoleType::White, ChessmanType::Queen), QImage("://img/white_queen.png")),
