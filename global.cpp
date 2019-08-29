@@ -147,7 +147,7 @@ bool Chessboard::saveLocalFile(const QString &path, const RoleType &firstRole) c
 		writeChessman(Chessman(role, ChessmanType::Pawn), "pawn");
 
 		if (role == firstRole) {
-			role = (role == RoleType::White ? RoleType::Black : RoleType::White);
+			role = opponent(role);
 		} else {
 			break;
 		}

@@ -22,6 +22,8 @@ const qint32 baseRankBlack = 7;
 const qint32 pawnStartRankWhite = 6;
 const qint32 pawnStartRankBlack = 1;
 
+const qint32 squares = ranks * ranks;
+
 typedef std::bitset<ranks * ranks> PositionSet;
 
 const Chessman nullChessman(RoleType::Neither, ChessmanType::None);

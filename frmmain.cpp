@@ -109,7 +109,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 				}
 
 				assert(currentRole != RoleType::Neither);
-				currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+				currentRole = opponent(currentRole);
 
 				currentPosition = nullPosition;
 
@@ -152,7 +152,7 @@ void frmMain::dataArrival() {
 
 			moveChessman(Position(tokens[1].toInt(), tokens[2].toInt()), Position(tokens[3].toInt(), tokens[4].toInt()), chessboard);
 			assert(currentRole != RoleType::Neither);
-			currentRole = (currentRole == RoleType::White ? RoleType::Black : RoleType::White);
+			currentRole = opponent(currentRole);
 
 			ticksLeft = timeoutMove * milli;
 			lastTick = QDateTime::currentMSecsSinceEpoch();
@@ -180,7 +180,7 @@ void frmMain::dataArrival() {
 			this->close();
 		} else if (tokens[0] == "promote") {
 			assert(tokens.size() == 4);
-			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(role == RoleType::White ? RoleType::Black : RoleType::White, ChessmanType(tokens[3].toInt()));
+			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(opponent(role), ChessmanType(tokens[3].toInt()));
 		} else if (tokens[0] == "exit") {
 			assert(tokens.size() == 1);
 			gameWon(tr("Your opponent has exited the game. You've won!"));

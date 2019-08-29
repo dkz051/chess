@@ -2,8 +2,17 @@
 
 #include "graphics.h"
 
-quint32 cartesianToSequential(const Position &position) {
-	return quint32(position.first * ranks + position.second);
+RoleType opponent(RoleType role) {
+	assert(role != RoleType::Neither);
+	return role == RoleType::White ? RoleType::Black : RoleType::White;
+}
+
+quint32 cartesianToSequential(const Position &cartesian) {
+	return quint32(cartesian.first * ranks + cartesian.second);
+}
+
+Position sequentialToCartesian(quint32 sequential) {
+	return Position(sequential / ranks, sequential % ranks);
 }
 
 Position algebraicToCartesian(const QString &algebraic) {
@@ -42,7 +51,6 @@ PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboa
 			for (qint32 k = 0; k < 8; ++k) {
 				qint32 x = from.first + dirX[k], y = from.second + dirY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role) {
-					//ans.push_back(Position(x, y));
 					ans.set(cartesianToSequential(Position(x, y)));
 				}
 			}
@@ -64,7 +72,6 @@ PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboa
 					y += dir8Y[k];
 					if (x >= 0 && x < ranks && y >= 0 && y < ranks) {
 						if (chessboard[x][y].first != role) {
-						//	ans.push_back(Position(x, y));
 							ans.set(cartesianToSequential(Position(x, y)));
 						}
 						if (chessboard[x][y].second != ChessmanType::None) {
@@ -82,7 +89,6 @@ PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboa
 			for (qint32 k = 0; k < 2; ++k) {
 				qint32 x = from.first + dirPawnAttackX[k], y = from.second + dirPawnAttackY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role && chessboard[x][y].first != RoleType::Neither) {
-				//	ans.push_back(Position(x, y));
 					ans.set(cartesianToSequential(Position(x, y)));
 				}
 			}
@@ -111,7 +117,6 @@ PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard
 			for (qint32 k = 0; k < (from.second == startRank ? 2 : 1); ++k) {
 				qint32 x = from.first + dirPawnMoveX[k], y = from.second + dirPawnMoveY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == ChessmanType::None) {
-				//	ans.push_back(Position(x, y));
 					ans.set(cartesianToSequential(Position(x, y)));
 				} else {
 					break;
@@ -127,12 +132,10 @@ PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard
 }
 
 bool isAttacking(Position from, Position to, RoleType fromRole, const Chessboard &chessboard) {
-	//return attackRange(from, fromRole, chessboard).indexOf(to) != -1;
 	return attackRange(from, fromRole, chessboard).test(cartesianToSequential(to));
 }
 
 bool isMovePossible(Position from, Position to, RoleType fromRole, const Chessboard &chessboard) {
-	//return moveRange(from, fromRole, chessboard).indexOf(to) != -1;
 	return moveRange(from, fromRole, chessboard).test(cartesianToSequential(to));
 }
 
@@ -140,4 +143,55 @@ void moveChessman(Position from, Position to, Chessboard &chessboard) {
 	// Assuming that this move is legal
 	chessboard[to] = chessboard[from];
 	chessboard[from] = nullChessman;
+}
+
+bool isInCheck(RoleType role, const Chessboard &chessboard) {
+	qint32 kingX, kingY;
+	for (kingX = 0; kingX < ranks; ++kingX) {
+		for (kingY = 0; kingY < ranks; ++kingY) {
+			if (chessboard[kingX][kingY] == Chessman(role, ChessmanType::King)) {
+				break;
+			}
+		}
+	}
+	assert(kingX < ranks);
+
+	for (qint32 x = 0; x < ranks; ++x) {
+		for (qint32 y = 0; y < ranks; ++y) {
+			if (chessboard[x][y].first != role) {
+				if (isAttacking(Position(x, y), Position(kingX, kingY), opponent(role), chessboard)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool isCheckmate(RoleType role, const Chessboard &chessboard) {
+	return isInCheck(role, chessboard) && isOutOfPossibleMoves(role, chessboard);
+}
+
+bool isStalemate(RoleType role, const Chessboard &chessboard) {
+	return !isInCheck(role, chessboard) && isOutOfPossibleMoves(role, chessboard);
+}
+
+bool isOutOfPossibleMoves(RoleType role, const Chessboard &chessboard) {
+	for (qint32 x = 0; x < ranks; ++x) {
+		for (qint32 y = 0; y < ranks; ++y) {
+			if (chessboard[x][y].first == role) {
+				PositionSet moves = moveRange(Position(x, y), role, chessboard);
+				for (quint32 i = 0; i < squares; ++i) {
+					if (moves.test(i)) {
+						Chessboard moved = chessboard;
+						moveChessman(Position(x, y), sequentialToCartesian(i), moved);
+						if (!isInCheck(role, moved)) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
 }
