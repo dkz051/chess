@@ -1,6 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <bitset>
 #include <utility>
 
 #include <QMap>
@@ -11,7 +12,6 @@
 
 enum RoleType { White = 7, Black = 0, Neither = 1 };
 enum ChessmanType { King = 4, Queen = 10, Rook = 5, Bishop = 3, Knight = 2, Pawn = 1, None = 99 };
-//enum CommandType { Role = 0, Move, Castling, Draw, Surrender, Message, Exit };
 
 typedef std::pair<RoleType, ChessmanType> Chessman;
 typedef std::pair<qint32, qint32> Position;
@@ -21,6 +21,8 @@ const qint32 baseRankWhite = 0;
 const qint32 baseRankBlack = 7;
 const qint32 pawnStartRankWhite = 6;
 const qint32 pawnStartRankBlack = 1;
+
+typedef std::bitset<ranks * ranks> PositionSet;
 
 const Chessman nullChessman(RoleType::Neither, ChessmanType::None);
 

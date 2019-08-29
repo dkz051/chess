@@ -60,7 +60,7 @@ void renderPieces(QPainter *canvas, qint32 width, qint32 height, RoleType role, 
 }
 
 void renderMoves(QPainter *canvas, qint32 width, qint32 height, RoleType role, Position position, const Chessboard &chessboard) {
-	QVector<Position> moveTargets = moveRange(position, role, chessboard);
+	PositionSet moveTargets = moveRange(position, role, chessboard);
 
 	canvas->save();
 	qint32 gridSize = getChessboardGridSize(width, height);
@@ -69,18 +69,22 @@ void renderMoves(QPainter *canvas, qint32 width, qint32 height, RoleType role, P
 	canvas->setPen(Qt::NoPen);
 	canvas->setBrush(colorMoveTarget);
 
-	for (qint32 i = 0; i < moveTargets.size(); ++i) {
-		const qint32 x = moveTargets[i].first, y = moveTargets[i].second;
+//	for (qint32 i = 0; i < moveTargets.size(); ++i) {
+	for (qint32 x = 0; x < ranks; ++x) {
+		for (qint32 y = 0; y < ranks; ++y) {
+		//	const qint32 x = moveTargets[i].first, y = moveTargets[i].second;
+			if (moveTargets.test(cartesianToSequential(Position(x, y)))) {
+				QRect rect;
 
-		QRect rect;
+				if (role == RoleType::White) {
+					rect = QRect(x * gridSize, y * gridSize, gridSize, gridSize);
+				} else if (role == RoleType::Black) {
+					rect = QRect((ranks - 1 - x) * gridSize, (ranks - 1 - y) * gridSize, gridSize, gridSize);
+				}
 
-		if (role == RoleType::White) {
-			rect = QRect(x * gridSize, y * gridSize, gridSize, gridSize);
-		} else if (role == RoleType::Black) {
-			rect = QRect((ranks - 1 - x) * gridSize, (ranks - 1 - y) * gridSize, gridSize, gridSize);
+				canvas->drawRect(rect);
+			}
 		}
-
-		canvas->drawRect(rect);
 	}
 
 	canvas->restore();

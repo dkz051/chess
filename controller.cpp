@@ -2,6 +2,10 @@
 
 #include "graphics.h"
 
+quint32 cartesianToSequential(const Position &position) {
+	return quint32(position.first * ranks + position.second);
+}
+
 Position algebraicToCartesian(const QString &algebraic) {
 	assert(algebraic.length() == 2);
 	return Position(algebraic[0].toLatin1() - 'a', ranks - 1 - (algebraic[1].toLatin1() - '0'));
@@ -25,10 +29,11 @@ Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height, RoleType
 	}
 }
 
-QVector<Position> attackRange(Position from, RoleType role, const Chessboard &chessboard) {
+PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboard) {
 	assert(role != RoleType::Neither);
 
-	QVector<Position> ans;
+	PositionSet ans;
+	ans.reset();
 	switch (ChessmanType type = chessboard[from].second; type) {
 		case ChessmanType::King:
 		case ChessmanType::Knight: {
@@ -37,7 +42,8 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 			for (qint32 k = 0; k < 8; ++k) {
 				qint32 x = from.first + dirX[k], y = from.second + dirY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role) {
-					ans.push_back(Position(x, y));
+					//ans.push_back(Position(x, y));
+					ans.set(cartesianToSequential(Position(x, y)));
 				}
 			}
 			break;
@@ -58,7 +64,8 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 					y += dir8Y[k];
 					if (x >= 0 && x < ranks && y >= 0 && y < ranks) {
 						if (chessboard[x][y].first != role) {
-							ans.push_back(Position(x, y));
+						//	ans.push_back(Position(x, y));
+							ans.set(cartesianToSequential(Position(x, y)));
 						}
 						if (chessboard[x][y].second != ChessmanType::None) {
 							break;
@@ -75,7 +82,8 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 			for (qint32 k = 0; k < 2; ++k) {
 				qint32 x = from.first + dirPawnAttackX[k], y = from.second + dirPawnAttackY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].first != role && chessboard[x][y].first != RoleType::Neither) {
-					ans.push_back(Position(x, y));
+				//	ans.push_back(Position(x, y));
+					ans.set(cartesianToSequential(Position(x, y)));
 				}
 			}
 			break;
@@ -87,8 +95,8 @@ QVector<Position> attackRange(Position from, RoleType role, const Chessboard &ch
 	return ans;
 }
 
-QVector<Position> moveRange(Position from, RoleType role, const Chessboard &chessboard) {
-	QVector<Position> ans = attackRange(from, role, chessboard);
+PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard) {
+	PositionSet ans = attackRange(from, role, chessboard);
 	switch (ChessmanType type = chessboard[from].second; type) {
 		case ChessmanType::King:
 		case ChessmanType::Knight:
@@ -103,7 +111,8 @@ QVector<Position> moveRange(Position from, RoleType role, const Chessboard &ches
 			for (qint32 k = 0; k < (from.second == startRank ? 2 : 1); ++k) {
 				qint32 x = from.first + dirPawnMoveX[k], y = from.second + dirPawnMoveY[k];
 				if (x >= 0 && x < ranks && y >= 0 && y < ranks && chessboard[x][y].second == ChessmanType::None) {
-					ans.push_back(Position(x, y));
+				//	ans.push_back(Position(x, y));
+					ans.set(cartesianToSequential(Position(x, y)));
 				} else {
 					break;
 				}
@@ -118,11 +127,13 @@ QVector<Position> moveRange(Position from, RoleType role, const Chessboard &ches
 }
 
 bool isAttacking(Position from, Position to, RoleType fromRole, const Chessboard &chessboard) {
-	return attackRange(from, fromRole, chessboard).indexOf(to) != -1;
+	//return attackRange(from, fromRole, chessboard).indexOf(to) != -1;
+	return attackRange(from, fromRole, chessboard).test(cartesianToSequential(to));
 }
 
 bool isMovePossible(Position from, Position to, RoleType fromRole, const Chessboard &chessboard) {
-	return moveRange(from, fromRole, chessboard).indexOf(to) != -1;
+	//return moveRange(from, fromRole, chessboard).indexOf(to) != -1;
+	return moveRange(from, fromRole, chessboard).test(cartesianToSequential(to));
 }
 
 void moveChessman(Position from, Position to, Chessboard &chessboard) {
