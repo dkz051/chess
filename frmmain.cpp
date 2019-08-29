@@ -1,6 +1,7 @@
 #include "frmmain.h"
 
 #include <QPainter>
+#include <QFileDialog>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
@@ -180,10 +181,6 @@ void frmMain::dataArrival() {
 		} else if (tokens[0] == "promote") {
 			assert(tokens.size() == 4);
 			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(role == RoleType::White ? RoleType::Black : RoleType::White, ChessmanType(tokens[3].toInt()));
-		} else if (tokens[0] == "initial") {
-			assert(tokens.size() == 3);
-			chessboard.deserialize(tokens[1]);
-			currentRole = RoleType(tokens[2].toInt());
 		} else if (tokens[0] == "exit") {
 			assert(tokens.size() == 1);
 			gameWon(tr("Your opponent has exited the game. You've won!"));
@@ -202,6 +199,44 @@ void frmMain::dataArrival() {
 		} else if (tokens[0] == "reject") {
 			assert(tokens.size() == 1);
 			drawRejected.exec();
+		} else if (tokens[0] == "load") {
+			assert(tokens.size() == 1);
+			if (loadAcceptConfirm.exec() == QMessageBox::Yes) {
+				sendMessage(tcpSocket, "allow;");
+				timer.stop();
+			} else {
+				sendMessage(tcpSocket, "refuse;");
+			}
+		} else if (tokens[0] == "refuse") {
+			assert(tokens.size() == 1);
+			loadRefused.exec();
+		} else if (tokens[0] == "allow") {
+			assert(tokens.size() == 1);
+			timer.stop();
+			QFileDialog dlgFile(this, tr("Select Endgame File"), "./", tr("All Files (*.*)"));
+			dlgFile.setFileMode(QFileDialog::ExistingFile);
+			while (true) {
+				if (dlgFile.exec()) {
+					QStringList files = dlgFile.selectedFiles();
+					assert(files.size() == 1);
+					if (chessboard.loadLocalFile(files[0], currentRole)) {
+						sendMessage(tcpSocket, QString("endgame %1 %2;").arg(chessboard.serialize()).arg(qint32(currentRole)));
+						role = (rand() % 2 == 0 ? RoleType::White : RoleType::Black);
+						sendMessage(tcpSocket, QString("role %1;").arg(role == RoleType::White ? "black" : "white"));
+						break;
+					}
+				}
+			}
+			if (role == currentRole) {
+				ticksLeft = timeoutMove * milli;
+				timer.start();
+			}
+			this->update();
+		} else if (tokens[0] == "endgame") {
+			assert(tokens.size() == 3);
+			chessboard.deserialize(tokens[1]);
+			setGame(RoleType(tokens[2].toInt()));
+			this->update();
 		}
 	}
 }
@@ -273,10 +308,19 @@ void frmMain::closeAllDialogs() {
 	drawProposalConfirm.close();
 	drawAcceptanceConfirm.close();
 	drawRejected.close();
+	loadConfirm.close();
+	loadRefused.close();
+	loadAcceptConfirm.close();
 }
 
 void frmMain::on_btnProposeDraw_clicked() {
 	if (drawProposalConfirm.exec() == QMessageBox::Yes) {
 		sendMessage(tcpSocket, "propose;");
+	}
+}
+
+void frmMain::on_btnLoad_clicked() {
+	if (loadConfirm.exec() == QMessageBox::Yes) {
+		sendMessage(tcpSocket, "load;");
 	}
 }

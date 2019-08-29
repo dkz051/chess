@@ -4,11 +4,11 @@
 
 Position algebraicToCartesian(const QString &algebraic) {
 	assert(algebraic.length() == 2);
-	return Position(algebraic[0].toLatin1() - 'a', ranks - 1 - algebraic[1].toLatin1() - '0');
+	return Position(algebraic[0].toLatin1() - 'a', ranks - 1 - (algebraic[1].toLatin1() - '0'));
 }
 
 QString cartesianToAlgebraic(const Position &cartesian) {
-	return QString(QChar(cartesian.first + 'a')) + QChar(ranks - 1 - cartesian.second + 'a');
+	return QString(QChar(cartesian.first + 'a')) + QChar(ranks - 1 - cartesian.second + '0');
 }
 
 void sendMessage(QTcpSocket *tcpSocket, const QString &message) {

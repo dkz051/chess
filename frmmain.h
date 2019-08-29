@@ -40,6 +40,8 @@ private slots:
 
 	void on_btnProposeDraw_clicked();
 
+	void on_btnLoad_clicked();
+
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
 
@@ -96,6 +98,30 @@ private:
 		QMessageBox::Warning,
 		tr("Draw Proposal Rejected"),
 		tr("Your opponent has rejected your draw proposal.\nThe game continues."),
+		QMessageBox::Ok,
+		this
+	);
+
+	QMessageBox loadConfirm = QMessageBox(
+		QMessageBox::Question,
+		tr("Confirm?"),
+		tr("Are you sure you are loading another endgame?\nThis needs your opponent's acceptance."),
+		QMessageBox::Yes | QMessageBox::No,
+		this
+	);
+
+	QMessageBox loadAcceptConfirm = QMessageBox(
+		QMessageBox::Question,
+		tr("Confirm?"),
+		tr("Your opponent has proposed loading another endgame.\nAccept?\nIf you choose [yes], you will have to wait for your opponent loading endgame file."),
+		QMessageBox::Yes | QMessageBox::No,
+		this
+	);
+
+	QMessageBox loadRefused = QMessageBox(
+		QMessageBox::Warning,
+		tr("Rejected"),
+		tr("Your opponent has rejected loading another endgame.\nThe current game continues."),
 		QMessageBox::Ok,
 		this
 	);

@@ -74,6 +74,8 @@ struct Chessboard {
 
 	Chessboard();
 	void defaultChessboard();
+	void nullChessboard();
+
 	Chessman *operator[](const qint32 &index);
 	const Chessman *operator[](const qint32 &index) const;
 	Chessman &operator[](const Position &position);

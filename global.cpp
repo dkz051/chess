@@ -32,6 +32,14 @@ void Chessboard::defaultChessboard() {
 	}
 }
 
+void Chessboard::nullChessboard() {
+	for (qint32 i = 0; i < ranks; ++i) {
+		for (qint32 j = 0; j < ranks; ++j) {
+			chessboard[i][j] = nullChessman;
+		}
+	}
+}
+
 Chessman *Chessboard::operator[](const qint32 &index) {
 	return chessboard[index];
 }
@@ -54,6 +62,8 @@ bool Chessboard::loadLocalFile(const QString &path, RoleType &firstRole) {
 		return false;
 	}
 	QTextStream stream(&file);
+
+	nullChessboard();
 
 	firstRole = RoleType::Neither;
 	RoleType currentRole = RoleType::Neither;
@@ -180,7 +190,7 @@ QString Chessboard::serialize() const {
 
 void Chessboard::deserialize(const QString &string) {
 	for (qint32 i = 0, k = 0; i < ranks; ++i) {
-		for (qint32 j = 0; j < ranks; ++j, ++k) {
+		for (qint32 j = 0; j < ranks; ++j) {
 			if (string[k] == '.') {
 				chessboard[j][i] = nullChessman;
 			} else if (string[k] == 'K') {
@@ -210,6 +220,7 @@ void Chessboard::deserialize(const QString &string) {
 			} else {
 				assert(false);
 			}
+			++k;
 		}
 	}
 }
