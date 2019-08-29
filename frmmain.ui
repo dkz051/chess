@@ -72,7 +72,7 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QPushButton" name="btnExit">
          <property name="text">
           <string>E&amp;xit Game</string>
@@ -95,14 +95,14 @@
          </attribute>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="Line" name="line">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QPushButton" name="btnResign">
          <property name="text">
           <string>&amp;Resign</string>
@@ -110,6 +110,13 @@
         </widget>
        </item>
        <item row="6" column="0">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
         <widget class="QPushButton" name="btnProposeDraw">
          <property name="text">
           <string>&amp;Propose Draw</string>
@@ -124,9 +131,9 @@
         </widget>
        </item>
        <item row="5" column="0">
-        <widget class="Line" name="line_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+        <widget class="QPushButton" name="btnSave">
+         <property name="text">
+          <string>&amp;Save Current Game</string>
          </property>
         </widget>
        </item>

@@ -114,7 +114,14 @@ bool Chessboard::saveLocalFile(const QString &path, const RoleType &firstRole) c
 	}
 	QTextStream stream(&file);
 
+	assert(firstRole != RoleType::Neither);
+
 	for (RoleType role = firstRole; true; ) {
+		if (role == RoleType::White) {
+			stream << "white\n";
+		} else {
+			stream << "black\n";
+		}
 
 		auto writeChessman = [&](Chessman chessman, QString string) -> void {
 			QVector<Position> positions;

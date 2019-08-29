@@ -8,7 +8,7 @@ Position algebraicToCartesian(const QString &algebraic) {
 }
 
 QString cartesianToAlgebraic(const Position &cartesian) {
-	return QString(QChar(cartesian.first + 'a')) + QChar(ranks - 1 - cartesian.second + '0');
+	return QString(QChar(cartesian.first + 'a')) + QChar(ranks - cartesian.second + '0');
 }
 
 void sendMessage(QTcpSocket *tcpSocket, const QString &message) {

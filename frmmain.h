@@ -42,6 +42,8 @@ private slots:
 
 	void on_btnLoad_clicked();
 
+	void on_btnSave_clicked();
+
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
 

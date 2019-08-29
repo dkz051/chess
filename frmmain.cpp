@@ -218,7 +218,7 @@ void frmMain::dataArrival() {
 			while (true) {
 				if (dlgFile.exec()) {
 					QStringList files = dlgFile.selectedFiles();
-					assert(files.size() == 1);
+					assert(files.size() >= 1);
 					if (chessboard.loadLocalFile(files[0], currentRole)) {
 						sendMessage(tcpSocket, QString("endgame %1 %2;").arg(chessboard.serialize()).arg(qint32(currentRole)));
 						role = (rand() % 2 == 0 ? RoleType::White : RoleType::Black);
@@ -322,5 +322,15 @@ void frmMain::on_btnProposeDraw_clicked() {
 void frmMain::on_btnLoad_clicked() {
 	if (loadConfirm.exec() == QMessageBox::Yes) {
 		sendMessage(tcpSocket, "load;");
+	}
+}
+
+void frmMain::on_btnSave_clicked() {
+	QFileDialog dlgFile(this, tr("Choose Save Location"), "./", tr("All Files (*.*)"));
+	dlgFile.setFileMode(QFileDialog::AnyFile);
+	if (dlgFile.exec()) {
+		QStringList files = dlgFile.selectedFiles();
+		assert(files.size() >= 1);
+		chessboard.saveLocalFile(files[0], currentRole);
 	}
 }
