@@ -17,11 +17,14 @@ frmMain::frmMain(QWidget *parent) : QMainWindow(parent), ui(new Ui::frmMain) {
 	timer.setInterval(10);
 	timer.stop();
 
+	chessboard.defaultChessboard();
 	connect(&timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
 frmMain::~frmMain() {
 	delete ui;
+	delete tcpServer;
+	delete tcpSocket;
 }
 
 void frmMain::setNetWork(QTcpServer *server, QTcpSocket *socket) {
@@ -82,6 +85,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 				if (chessboard[currentPosition].second == ChessmanType::Pawn) {
 					if (position.second == (role == RoleType::White ? baseRankWhite : baseRankBlack)) {
 						frmPromote *dlgPromote = new frmPromote(this);
+						dlgPromote->setAttribute(Qt::WA_DeleteOnClose);
 						dlgPromote->setRole(role);
 						promoteTo = ChessmanType(dlgPromote->exec());
 						if (promoteTo == ChessmanType::None) {
@@ -176,6 +180,28 @@ void frmMain::dataArrival() {
 		} else if (tokens[0] == "promote") {
 			assert(tokens.size() == 4);
 			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(role == RoleType::White ? RoleType::Black : RoleType::White, ChessmanType(tokens[3].toInt()));
+		} else if (tokens[0] == "initial") {
+			assert(tokens.size() == 3);
+			chessboard.deserialize(tokens[1]);
+			currentRole = RoleType(tokens[2].toInt());
+		} else if (tokens[0] == "exit") {
+			assert(tokens.size() == 1);
+			gameWon(tr("Your opponent has exited the game. You've won!"));
+			this->close();
+		} else if (tokens[0] == "propose") {
+			assert(tokens.size() == 1);
+			if (drawAcceptanceConfirm.exec() == QMessageBox::Yes) {
+				sendMessage(tcpSocket, "accept;");
+				gameDrawn(tr("You have agreed the draw proposal."));
+			} else {
+				sendMessage(tcpSocket, "reject;");
+			}
+		} else if (tokens[0] == "accept") {
+			assert(tokens.size() == 1);
+			gameDrawn(tr("Your opponent has agreed your draw proposal."));
+		} else if (tokens[0] == "reject") {
+			assert(tokens.size() == 1);
+			drawRejected.exec();
 		}
 	}
 }
@@ -202,28 +228,55 @@ void frmMain::onTimeout() {
 }
 
 void frmMain::gameWon(const QString &prompt) {
-	resignConfirm.close();
+	timer.stop();
+	closeAllDialogs();
 	QMessageBox::information(this, tr("You Won!"), prompt);
 
 	frmStart *dlgStart = new frmStart;
+	dlgStart->setAttribute(Qt::WA_DeleteOnClose);
 	dlgStart->show();
 	this->close();
 }
 
 void frmMain::gameLost(const QString &prompt) {
-	resignConfirm.close();
+	timer.stop();
+	closeAllDialogs();
 	QMessageBox::warning(this, tr("You Lost!"), prompt);
 
 	frmStart *dlgStart = new frmStart;
+	dlgStart->setAttribute(Qt::WA_DeleteOnClose);
 	dlgStart->show();
 	this->close();
 }
 
 void frmMain::gameDrawn(const QString &prompt) {
-	resignConfirm.close();
-	QMessageBox::information(this, tr("Drawn!"), prompt);
+	timer.stop();
+	closeAllDialogs();
+	QMessageBox::information(this, tr("Draw!"), prompt);
 
 	frmStart *dlgStart = new frmStart;
+	dlgStart->setAttribute(Qt::WA_DeleteOnClose);
 	dlgStart->show();
 	this->close();
+}
+
+void frmMain::on_btnExit_clicked() {
+	if (exitConfirm.exec() == QMessageBox::Yes) {
+		sendMessage(tcpSocket, "exit;");
+		this->close();
+	}
+}
+
+void frmMain::closeAllDialogs() {
+	resignConfirm.close();
+	exitConfirm.close();
+	drawProposalConfirm.close();
+	drawAcceptanceConfirm.close();
+	drawRejected.close();
+}
+
+void frmMain::on_btnProposeDraw_clicked() {
+	if (drawProposalConfirm.exec() == QMessageBox::Yes) {
+		sendMessage(tcpSocket, "propose;");
+	}
 }

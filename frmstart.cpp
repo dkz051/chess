@@ -2,6 +2,7 @@
 
 #include <QRegExp>
 #include <QByteArray>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QHostAddress>
 
@@ -22,6 +23,8 @@ frmStart::frmStart(QWidget *parent) : QDialog(parent), ui(new Ui::frmStart) {
 
 frmStart::~frmStart() {
 	delete ui;
+	delete tcpServer;
+	delete tcpSocket;
 }
 
 bool frmStart::checkIpPort() {
@@ -64,7 +67,11 @@ void frmStart::on_btnStart_clicked() {
 			tcpServer = new QTcpServer(this);
 			connect(tcpServer, SIGNAL(newConnection()), this, SLOT(onServerConnected()));
 		}
-		tcpServer->listen(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
+		if (ui->chkAnyIp->isChecked()) {
+			tcpServer->listen(QHostAddress::AnyIPv4, quint16(ui->txtPort->text().toInt()));
+		} else {
+			tcpServer->listen(QHostAddress(ui->txtServerIp->text()), quint16(ui->txtPort->text().toInt()));
+		}
 	} else {
 		if (tcpSocket == nullptr) {
 			tcpSocket = new QTcpSocket(this);
@@ -105,10 +112,13 @@ void frmStart::onServerConnected() {
 	sendMessage(tcpSocket, QString("role %1;").arg(role == RoleType::White ? "black" : "white"));
 
 	frmMain *dlgMain = new frmMain;
+	dlgMain->setAttribute(Qt::WA_DeleteOnClose);
 	dlgMain->setWindowTitle("Chess Server");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->setGame(role);
 	dlgMain->show();
+	tcpServer = nullptr;
+	tcpSocket = nullptr;
 	this->close();
 }
 
@@ -116,9 +126,12 @@ void frmStart::onClientConnected() {
 	timer.stop();
 
 	frmMain *dlgMain = new frmMain;
+	dlgMain->setAttribute(Qt::WA_DeleteOnClose);
 	dlgMain->setWindowTitle("Chess Client");
 	dlgMain->setNetWork(tcpServer, tcpSocket);
 	dlgMain->show();
+	tcpServer = nullptr;
+	tcpSocket = nullptr;
 	this->close();
 }
 
@@ -126,4 +139,26 @@ void frmStart::onConnectionTimeout() {
 	timer.stop();
 	on_btnCancel_clicked();
 	QMessageBox::warning(this, tr("Cannot Start Game"), tr("Connection timed out.\nPlease check your system network settings or IP/port configuration."));
+}
+
+void frmStart::on_chkAnyIp_clicked(bool checked) {
+	if (checked) {
+		ui->txtServerIp->setEnabled(false);
+	} else {
+		ui->txtServerIp->setEnabled(true);
+	}
+}
+
+void frmStart::on_optClient_clicked(bool checked) {
+	if (checked) {
+		ui->txtServerIp->setEnabled(true);
+		ui->chkAnyIp->setEnabled(false);
+	}
+}
+
+void frmStart::on_optServer_clicked(bool checked) {
+	if (checked) {
+		ui->chkAnyIp->setEnabled(true);
+		ui->txtServerIp->setEnabled(!ui->chkAnyIp->isChecked());
+	}
 }

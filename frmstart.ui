@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>268</width>
-    <height>128</height>
+    <height>178</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="font">
    <font>
@@ -21,10 +27,10 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
+  <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QRadioButton" name="optServer">
@@ -45,20 +51,30 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="0">
+     <item>
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="txtPort">
+       <item row="0" column="0">
+        <widget class="QLabel" name="lblServerIp">
          <property name="text">
-          <string>2333</string>
+          <string>Server IP:</string>
          </property>
-         <property name="placeholderText">
-          <string/>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="txtServerIp">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>127.0.0.1</string>
          </property>
@@ -72,24 +88,61 @@
          <property name="text">
           <string>Port:</string>
          </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="lblServerIp">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="txtPort">
          <property name="text">
-          <string>Server IP:</string>
+          <string>2333</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <property name="placeholderText">
+          <string/>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="2" column="0">
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QCheckBox" name="chkAnyIp">
+         <property name="text">
+          <string>&amp;Use any available IPv4 address</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QPushButton" name="btnStart">

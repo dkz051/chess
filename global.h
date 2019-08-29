@@ -73,14 +73,16 @@ struct Chessboard {
 	Chessman chessboard[ranks][ranks];
 
 	Chessboard();
-	static Chessboard defaultChessboard();
+	void defaultChessboard();
 	Chessman *operator[](const qint32 &index);
 	const Chessman *operator[](const qint32 &index) const;
 	Chessman &operator[](const Position &position);
 	const Chessman &operator[](const Position &position) const;
 
-	//QString toForsythEdwards() const;
-	//static Chessboard fromForsythEdwards(const QString &fen);
+	QString serialize() const;
+	void deserialize(const QString &string);
+	bool loadLocalFile(const QString &path, RoleType &firstRole);
+	bool saveLocalFile(const QString &path, const RoleType &firstRole) const;
 };
 
 #endif // GLOBALS_H

@@ -6,6 +6,8 @@
 
 #include "global.h"
 
+Position algebraicToCartesian(const QString &algebraic);
+QString cartesianToAlgebraic(const Position &cartesian);
 void sendMessage(QTcpSocket *tcpSocket, const QString &message);
 
 Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height, RoleType role);

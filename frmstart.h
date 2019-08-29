@@ -5,6 +5,9 @@
 #include <QDialog>
 #include <QtNetwork>
 
+#include "global.h"
+#include "controller.h"
+
 namespace Ui {
 	class frmStart;
 }
@@ -26,6 +29,11 @@ private slots:
 	void on_btnCancel_clicked();
 
 	void onConnectionTimeout();
+	void on_chkAnyIp_clicked(bool checked);
+
+	void on_optClient_clicked(bool checked);
+
+	void on_optServer_clicked(bool checked);
 private:
 	Ui::frmStart *ui;
 
@@ -33,6 +41,8 @@ private:
 	QTcpSocket *tcpSocket = nullptr;
 
 	QTimer timer = QTimer(this);
+	Chessboard chessboardLoaded;
+	RoleType firstRole;
 };
 
 #endif // FRMSTART_H
