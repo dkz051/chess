@@ -29,7 +29,7 @@ Position sequentialToCartesian(quint32 sequential) {
 
 Position algebraicToCartesian(const QString &algebraic) {
 	assert(algebraic.length() == 2);
-	return Position(algebraic[0].toLatin1() - 'a', ranks - 1 - (algebraic[1].toLatin1() - '0'));
+	return Position(algebraic[0].toLatin1() - 'a', ranks - (algebraic[1].toLatin1() - '0'));
 }
 
 QString cartesianToAlgebraic(const Position &cartesian) {
