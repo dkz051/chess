@@ -61,6 +61,10 @@ void frmStart::on_btnStart_clicked() {
 
 	ui->txtServerIp->setEnabled(false);
 	ui->txtPort->setEnabled(false);
+	ui->chkAnyIp->setEnabled(false);
+
+	ui->optClient->setEnabled(false);
+	ui->optServer->setEnabled(false);
 
 	if (ui->optServer->isChecked()) {
 		if (tcpServer == nullptr) {
@@ -89,8 +93,10 @@ void frmStart::on_btnCancel_clicked() {
 			tcpSocket->abort();
 		}
 		tcpServer->close();
+		ui->chkAnyIp->setEnabled(true);
 	} else {
 		tcpSocket->abort();
+		ui->chkAnyIp->setEnabled(false);
 	}
 
 	delete tcpServer;
@@ -104,8 +110,13 @@ void frmStart::on_btnCancel_clicked() {
 
 	ui->btnStart->setText(tr("S&tart"));
 
-	ui->txtServerIp->setEnabled(true);
+	if (!ui->chkAnyIp->isChecked()) {
+		ui->txtServerIp->setEnabled(true);
+	}
 	ui->txtPort->setEnabled(true);
+
+	ui->optClient->setEnabled(true);
+	ui->optServer->setEnabled(true);
 }
 
 void frmStart::onServerConnected() {
