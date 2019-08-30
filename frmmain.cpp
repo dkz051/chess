@@ -101,7 +101,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 
 				bool captureFlag = (chessboard[position].second == ChessmanType::King);
 
-				if (chessboard[currentPosition].second == ChessmanType::King && distance(currentPosition, position) == 2) {
+				if (chessboard[currentPosition].second == ChessmanType::King && euclideanDistance(currentPosition, position) == 4) {
 					// Castling
 					moveChessman(currentPosition, position, chessboard);
 					Position rook = position;
@@ -252,7 +252,7 @@ void frmMain::dataArrival() {
 		} else if (tokens[0] == "endgame") {
 			assert(tokens.size() == 3);
 			chessboard.deserialize(tokens[1]);
-			setGame(RoleType(tokens[2].toInt()));
+			currentRole = RoleType(tokens[2].toInt());
 			this->update();
 		} else if (tokens[0] == "stalemate") {
 			assert(tokens.size() == 1);
