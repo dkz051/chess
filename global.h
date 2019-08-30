@@ -42,7 +42,11 @@ const qint32 dirPawnMoveYBlack[2] = {1, 2};
 const QColor colorDark(181, 135, 99, 255);
 const QColor colorLight(240, 218, 181, 255);
 
-const QColor colorMoveTarget(255, 0, 0, 128);
+const QColor colorMoveTarget(70, 200, 175, 128);
+const QColor colorSelected(128, 192, 175, 128);
+const QColor colorCaptureTarget(255, 0, 0, 128);
+const QColor colorCastleTarget(184, 168, 174, 128);
+const QColor colorPromoteTarget(25, 220, 184, 128);
 
 const qint32 timeoutMove = 150;
 const qint32 timeoutConnection = 15;

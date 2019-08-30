@@ -10,7 +10,7 @@ bool isOutOfRange(const Position &position);
 
 RoleType opponent(RoleType role);
 
-qint32 euclideanDistance(Position a, Position b);
+qint32 squareEuclideanDistance(Position a, Position b);
 Position midpoint(Position a, Position b);
 
 quint32 cartesianToSequential(const Position &cartesian);

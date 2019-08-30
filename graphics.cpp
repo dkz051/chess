@@ -67,17 +67,28 @@ void renderMoves(QPainter *canvas, qint32 width, qint32 height, RoleType role, P
 	canvas->translate((width - gridSize * ranks) / 2, (height - gridSize * ranks) / 2);
 
 	canvas->setPen(Qt::NoPen);
-	canvas->setBrush(colorMoveTarget);
 
 	for (qint32 x = 0; x < ranks; ++x) {
 		for (qint32 y = 0; y < ranks; ++y) {
-			if (moveTargets.test(cartesianToSequential(Position(x, y)))) {
+			if (moveTargets.test(cartesianToSequential(Position(x, y))) || position == Position(x, y)) {
 				QRect rect;
 
 				if (role == RoleType::White) {
 					rect = QRect(x * gridSize, y * gridSize, gridSize, gridSize);
 				} else if (role == RoleType::Black) {
 					rect = QRect((ranks - 1 - x) * gridSize, (ranks - 1 - y) * gridSize, gridSize, gridSize);
+				}
+
+				if (position == Position(x, y)) {
+					canvas->setBrush(colorSelected);
+				} else if (chessboard[x][y].first == opponent(role)) {
+					canvas->setBrush(colorCaptureTarget);
+				} else if (!isOutOfRange(position) && chessboard[position].second == ChessmanType::King && squareEuclideanDistance(Position(x, y), position) == 4) {
+					canvas->setBrush(colorCastleTarget);
+				} else if (chessboard[position].second == ChessmanType::Pawn && (y == baseRankBlack || y == baseRankWhite)) {
+					canvas->setBrush(colorPromoteTarget);
+				} else {
+					canvas->setBrush(colorMoveTarget);
 				}
 
 				canvas->drawRect(rect);

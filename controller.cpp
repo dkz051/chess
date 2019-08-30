@@ -11,7 +11,7 @@ RoleType opponent(RoleType role) {
 	return role == RoleType::White ? RoleType::Black : RoleType::White;
 }
 
-qint32 euclideanDistance(Position a, Position b) {
+qint32 squareEuclideanDistance(Position a, Position b) {
 	return (a.first - b.first) * (a.first - b.first) + (a.second - b.second) * (a.second - b.second);
 }
 

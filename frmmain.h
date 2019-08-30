@@ -59,7 +59,7 @@ private:
 
 	bool connected = false;
 	QByteArray dataBuffer;
-	RoleType currentRole = RoleType::White;
+	RoleType currentRole = firstRole;
 	QTimer timer = QTimer(this);
 
 	qint64 ticksLeft, lastTick;
