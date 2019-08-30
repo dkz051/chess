@@ -6,6 +6,7 @@
 #include <QByteArray>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QPaintEvent>
 
 #include "global.h"
 
@@ -26,7 +27,8 @@ public slots:
 
 private slots:
 	void onTimeout();
-	void dataArrival();
+	void onDataArrival();
+	void onDisconnected();
 
 	void gameWon(const QString &prompt);
 	void gameLost(const QString &prompt);
@@ -60,6 +62,7 @@ private:
 	QTimer timer = QTimer(this);
 
 	qint64 ticksLeft, lastTick;
+	bool gameFinished = false;
 
 	QMessageBox resignConfirm = QMessageBox(
 		QMessageBox::Question,

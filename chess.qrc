@@ -13,5 +13,6 @@
         <file>img/white_queen.png</file>
         <file>img/white_rook.png</file>
         <file>img/none.png</file>
+        <file>img/chess.jpg</file>
     </qresource>
 </RCC>

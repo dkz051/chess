@@ -1,9 +1,9 @@
 #include "frmmain.h"
 
 #include <QPainter>
+#include <QPalette>
 #include <QFileDialog>
 #include <QMouseEvent>
-#include <QPaintEvent>
 
 #include "frmstart.h"
 #include "graphics.h"
@@ -20,6 +20,11 @@ frmMain::frmMain(QWidget *parent) : QMainWindow(parent), ui(new Ui::frmMain) {
 
 	chessboard.defaultChessboard();
 	connect(&timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+
+	QPixmap pixmap = QPixmap(":/img/chess.jpg").scaled(this->size());
+	QPalette palette(this->palette());
+	palette.setBrush(QPalette::Window, QBrush(pixmap));
+	this->setPalette(palette);
 }
 
 frmMain::~frmMain() {
@@ -39,12 +44,14 @@ void frmMain::setNetWork(QTcpServer *server, QTcpSocket *socket) {
 	assert(tcpSocket != nullptr);
 	tcpSocket->setParent(this);
 
-	connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(dataArrival()));
+	connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(onDataArrival()));
+	connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 }
 
 void frmMain::setGame(RoleType role) {
 	this->role = role;
 	connected = true;
+	gameFinished = false;
 	ticksLeft = timeoutMove * milli;
 	lastTick = QDateTime::currentMSecsSinceEpoch();
 	ui->lblThisRole->setText(role == RoleType::White ? tr("White") : tr("Black"));
@@ -162,7 +169,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 	return false;
 }
 
-void frmMain::dataArrival() {
+void frmMain::onDataArrival() {
 	dataBuffer.append(tcpSocket->readAll());
 
 	QList<QByteArray> arrays = dataBuffer.split(';');
@@ -312,8 +319,9 @@ void frmMain::onTimeout() {
 
 void frmMain::gameWon(const QString &prompt) {
 	timer.stop();
+	gameFinished = true;
 	closeAllDialogs();
-	QMessageBox::information(this, tr("You Won!"), prompt);
+	QMessageBox::information(this, tr("Won!"), prompt);
 
 	frmStart *dlgStart = new frmStart;
 	dlgStart->setAttribute(Qt::WA_DeleteOnClose);
@@ -323,8 +331,9 @@ void frmMain::gameWon(const QString &prompt) {
 
 void frmMain::gameLost(const QString &prompt) {
 	timer.stop();
+	gameFinished = true;
 	closeAllDialogs();
-	QMessageBox::warning(this, tr("You Lost!"), prompt);
+	QMessageBox::warning(this, tr("Lost!"), prompt);
 
 	frmStart *dlgStart = new frmStart;
 	dlgStart->setAttribute(Qt::WA_DeleteOnClose);
@@ -334,6 +343,7 @@ void frmMain::gameLost(const QString &prompt) {
 
 void frmMain::gameDraw(const QString &prompt) {
 	timer.stop();
+	gameFinished = true;
 	closeAllDialogs();
 	QMessageBox::information(this, tr("Draw!"), prompt);
 
@@ -389,8 +399,15 @@ void frmMain::setCountdown(qint64 ticks) {
 	qint64 centiseconds = (ticks % milli) / (milli / centi);
 
 	if (minutes > 0) {
-		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1:%2</span><span style=\"font-size:10pt;\">.%3</span></p></body></html>").arg(minutes).arg(seconds).arg(centiseconds, 2, 10, QChar('0')));
+		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1:%2</span><span style=\"font-size:10pt;\">.%3</span></p></body></html>").arg(minutes).arg(seconds, 2, 10, QChar('0')).arg(centiseconds, 2, 10, QChar('0')));
 	} else {
 		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(seconds).arg(centiseconds, 2, 10, QChar('0')));
+	}
+}
+
+void frmMain::onDisconnected() {
+	timer.stop();
+	if (!gameFinished) {
+		gameWon(tr("Your opponent is now disconnected.\nYou've won!"));
 	}
 }

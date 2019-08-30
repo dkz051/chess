@@ -24,7 +24,7 @@ void renderChessboard(QPainter *canvas, qint32 width, qint32 height, RoleType ro
 		}
 	}
 
-	canvas->setPen(Qt::black);
+	canvas->setPen(Qt::white);
 	for (qint32 i = 0; i < ranks; ++i) {
 		canvas->drawText(QRect(-gridSize, i * gridSize, gridSize, gridSize), Qt::AlignVCenter | Qt::AlignRight, QString("%1").arg(role == RoleType::White ? ranks - i : i + 1));
 		canvas->drawText(QRect(i * gridSize, ranks * gridSize, gridSize, gridSize), Qt::AlignHCenter | Qt::AlignTop, QString("%1").arg(QString(role == RoleType::White ? 'a' + i : 'a' + ranks - 1 - i)));
