@@ -24,7 +24,7 @@ const qint32 pawnStartRankBlack = 1;
 
 const qint32 squares = ranks * ranks;
 
-typedef std::bitset<ranks * ranks> PositionSet;
+typedef std::bitset<squares> PositionSet;
 
 const Chessman nullChessman(RoleType::Neither, ChessmanType::None);
 
@@ -42,7 +42,7 @@ const qint32 dirPawnMoveYBlack[2] = {1, 2};
 const QColor colorDark(181, 135, 99, 255);
 const QColor colorLight(240, 218, 181, 255);
 
-const QColor colorMoveTarget(255, 0, 0, 192);
+const QColor colorMoveTarget(255, 0, 0, 128);
 
 const qint32 timeoutMove = 150;
 const qint32 timeoutConnection = 15;

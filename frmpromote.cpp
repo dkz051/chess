@@ -7,6 +7,10 @@ frmPromote::frmPromote(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::frmPromote) {
 	ui->setupUi(this);
+
+	this->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+	this->window()->layout()->setSizeConstraint(QLayout::SetFixedSize);
+
 	ui->lblQueen->installEventFilter(this);
 	ui->lblRook->installEventFilter(this);
 	ui->lblBishop->installEventFilter(this);

@@ -68,7 +68,7 @@ bool Chessboard::loadLocalFile(const QString &path, RoleType &firstRole) {
 	firstRole = RoleType::Neither;
 	RoleType currentRole = RoleType::Neither;
 	while (!stream.atEnd()) {
-		QStringList line = stream.readLine().split(" ");
+		QStringList line = stream.readLine().simplified().split(" ", QString::SplitBehavior::SkipEmptyParts);
 		assert(line.size() > 0);
 		if (line[0] == "white") {
 			if (firstRole == RoleType::Neither) {

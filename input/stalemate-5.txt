@@ -1,0 +1,6 @@
+white
+king 1 f3
+black
+rook 1 b2
+pawn 1 f4
+king 1 f5

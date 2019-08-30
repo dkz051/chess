@@ -145,6 +145,19 @@ void moveChessman(Position from, Position to, Chessboard &chessboard) {
 	chessboard[from] = nullChessman;
 }
 
+bool isAttacked(Position to, RoleType role, const Chessboard &chessboard) {
+	for (qint32 x = 0; x < ranks; ++x) {
+		for (qint32 y = 0; y < ranks; ++y) {
+			if (chessboard[x][y].first != role) {
+				if (isAttacking(Position(x, y), to, opponent(role), chessboard)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool isInCheck(RoleType role, const Chessboard &chessboard) {
 	qint32 kingX, kingY;
 	for (kingX = 0; kingX < ranks; ++kingX) {
@@ -153,19 +166,12 @@ bool isInCheck(RoleType role, const Chessboard &chessboard) {
 				break;
 			}
 		}
-	}
-	assert(kingX < ranks);
-
-	for (qint32 x = 0; x < ranks; ++x) {
-		for (qint32 y = 0; y < ranks; ++y) {
-			if (chessboard[x][y].first != role) {
-				if (isAttacking(Position(x, y), Position(kingX, kingY), opponent(role), chessboard)) {
-					return true;
-				}
-			}
+		if (kingY < ranks && chessboard[kingX][kingY] == Chessman(role, ChessmanType::King)) {
+			break;
 		}
 	}
-	return false;
+	assert(kingX < ranks);
+	return isAttacked(Position(kingX, kingY), role, chessboard);
 }
 
 bool isCheckmate(RoleType role, const Chessboard &chessboard) {

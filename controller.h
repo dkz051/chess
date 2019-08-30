@@ -24,6 +24,8 @@ PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard
 bool isAttacking(Position from, Position to, RoleType fromRole, const Chessboard &chessboard);
 bool isMovePossible(Position from, Position to, RoleType fromRole, const Chessboard &chessboard);
 
+bool isAttacked(Position to, RoleType role, const Chessboard &chessboard);
+
 bool isInCheck(RoleType role, const Chessboard &chessboard);
 bool isCheckmate(RoleType role, const Chessboard &chessboard);
 bool isStalemate(RoleType role, const Chessboard &chessboard);

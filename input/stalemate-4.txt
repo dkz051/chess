@@ -1,0 +1,6 @@
+white
+king 1 d3
+black
+king 1 d1
+pawn 2 d4 d5
+bishop 1 a7

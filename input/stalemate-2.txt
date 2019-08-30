@@ -1,0 +1,6 @@
+black
+king 1 a8
+bishop 1 b8
+white
+king 1 b6
+rook 1 h8

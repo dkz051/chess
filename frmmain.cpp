@@ -80,6 +80,8 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 				currentPosition = nullPosition;
 			} else if (chessboard[position].first == role) {
 				currentPosition = position;
+			} else if (position == currentPosition) {
+				currentPosition = nullPosition;
 			} else if (isMovePossible(currentPosition, position, role, chessboard)) {
 				ChessmanType promoteTo = ChessmanType::None;
 
@@ -108,7 +110,6 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 					chessboard[position] = Chessman(role, promoteTo);
 				}
 
-				assert(currentRole != RoleType::Neither);
 				currentRole = opponent(currentRole);
 
 				currentPosition = nullPosition;
@@ -116,7 +117,18 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 				if (winFlag) {
 					sendMessage(tcpSocket, "captured;");
 					gameWon(tr("You've successfully captured your opponent's king!"));
-					this->close();
+					return true;
+				}
+
+				if (isStalemate(currentRole, chessboard)) {
+					sendMessage(tcpSocket, "stalemate;");
+					gameDrawn(tr("Stalemate!"));
+					return true;
+				}
+
+				if (isCheckmate(currentRole, chessboard)) {
+					sendMessage(tcpSocket, "checkmate;");
+					gameWon(tr("Checkmate!"));
 					return true;
 				}
 			} else {
@@ -162,12 +174,10 @@ void frmMain::dataArrival() {
 			assert(tokens.size() == 1);
 
 			gameLost(tr("Congratulations -- your king has been captured!"));
-			this->close();
 		} else if (tokens[0] == "resign") {
 			assert(tokens.size() == 1);
 
 			gameWon(tr("Your opponent has resigned. Congratulations!"));
-			this->close();
 		} else if (tokens[0] == "countdown") {
 			assert(tokens.size() == 2);
 
@@ -177,14 +187,12 @@ void frmMain::dataArrival() {
 			assert(tokens.size() == 1);
 
 			gameWon(tr("Your opponent's clock has timed out. You've won!"));
-			this->close();
 		} else if (tokens[0] == "promote") {
 			assert(tokens.size() == 4);
 			chessboard[tokens[1].toInt()][tokens[2].toInt()] = Chessman(opponent(role), ChessmanType(tokens[3].toInt()));
 		} else if (tokens[0] == "exit") {
 			assert(tokens.size() == 1);
 			gameWon(tr("Your opponent has exited the game. You've won!"));
-			this->close();
 		} else if (tokens[0] == "propose") {
 			assert(tokens.size() == 1);
 			if (drawAcceptanceConfirm.exec() == QMessageBox::Yes) {
@@ -237,6 +245,12 @@ void frmMain::dataArrival() {
 			chessboard.deserialize(tokens[1]);
 			setGame(RoleType(tokens[2].toInt()));
 			this->update();
+		} else if (tokens[0] == "stalemate") {
+			assert(tokens.size() == 1);
+			gameDrawn(tr("Stalemate!"));
+		} else if (tokens[0] == "checkmate") {
+			assert(tokens.size() == 1);
+			gameLost(tr("Checkmate!"));
 		}
 	}
 }
@@ -244,7 +258,7 @@ void frmMain::dataArrival() {
 void frmMain::on_btnResign_clicked() {
 	if (resignConfirm.exec() == QMessageBox::Yes) {
 		sendMessage(tcpSocket, "resign;");
-		this->close();
+		gameLost(tr("You have confirmed resign."));
 	}
 }
 
