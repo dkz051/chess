@@ -2,9 +2,21 @@
 
 #include "graphics.h"
 
+bool isOutOfRange(const Position &position) {
+	return position.first < 0 || position.first >= ranks || position.second < 0 || position.second >= ranks;
+}
+
 RoleType opponent(RoleType role) {
 	assert(role != RoleType::Neither);
 	return role == RoleType::White ? RoleType::Black : RoleType::White;
+}
+
+qint32 distance(Position a, Position b) {
+	return abs(a.first - b.first) + abs(a.second - b.second);
+}
+
+Position midpoint(Position a, Position b) {
+	return Position((a.first + b.first) >> 1, (a.second + b.second) >> 1);
 }
 
 quint32 cartesianToSequential(const Position &cartesian) {
@@ -34,7 +46,7 @@ Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height, RoleType
 	if (role == RoleType::White) {
 		return Position((x - (width - gridSize * ranks) / 2) / gridSize, (y - (height - gridSize * ranks) / 2) / gridSize);
 	} else {
-		return Position(ranks - 1 - (x - (width - gridSize * ranks) / 2) / gridSize, ranks - 1 - (y - (height - gridSize * ranks) / 2) / gridSize);
+		return Position((width - x - (width - gridSize * ranks) / 2) / gridSize, (height - y - (height - gridSize * ranks) / 2) / gridSize);
 	}
 }
 
@@ -43,6 +55,11 @@ PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboa
 
 	PositionSet ans;
 	ans.reset();
+
+	if (isOutOfRange(from)) {
+		return ans;
+	}
+
 	switch (ChessmanType type = chessboard[from].second; type) {
 		case ChessmanType::King:
 		case ChessmanType::Knight: {
@@ -102,7 +119,11 @@ PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboa
 }
 
 PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard) {
-	PositionSet ans = attackRange(from, role, chessboard);
+	if (isOutOfRange(from)) {
+		return PositionSet(quint64(0));
+	}
+
+	PositionSet ans = attackRange(from, role, chessboard) | castleRange(from, role, chessboard);
 	switch (ChessmanType type = chessboard[from].second; type) {
 		case ChessmanType::King:
 		case ChessmanType::Knight:
@@ -126,6 +147,48 @@ PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard
 		}
 		case ChessmanType::None: {
 			break;
+		}
+	}
+	return ans;
+}
+
+PositionSet castleRange(Position king, RoleType role, const Chessboard &chessboard) {
+	PositionSet ans;
+	ans.reset();
+
+	if (isOutOfRange(king)) {
+		return ans;
+	}
+
+	assert(role != RoleType::Neither);
+
+	if (chessboard[king] != Chessman(role, ChessmanType::King)) {
+		return ans;
+	}
+
+	qint32 rank = (role == RoleType::White ? baseRankBlack : baseRankWhite);
+	if (king.first != 4 || king.second != rank) {
+		return ans;
+	}
+
+	if (chessboard[0][rank] == Chessman(role, ChessmanType::Rook)) {
+		if (chessboard[1][rank] == nullChessman &&
+			chessboard[2][rank] == nullChessman &&
+			chessboard[3][rank] == nullChessman &&
+			!isAttacked(Position(4, rank), role, chessboard) &&
+			!isAttacked(Position(3, rank), role, chessboard) &&
+			!isAttacked(Position(2, rank), role, chessboard)) {
+			ans.set(cartesianToSequential(Position(2, rank)));
+		}
+	}
+
+	if (chessboard[7][rank] == Chessman(role, ChessmanType::Rook)) {
+		if (chessboard[5][rank] == nullChessman &&
+			chessboard[6][rank] == nullChessman &&
+			!isAttacked(Position(4, rank), role, chessboard) &&
+			!isAttacked(Position(5, rank), role, chessboard) &&
+			!isAttacked(Position(6, rank), role, chessboard)) {
+			ans.set(cartesianToSequential(Position(6, rank)));
 		}
 	}
 	return ans;

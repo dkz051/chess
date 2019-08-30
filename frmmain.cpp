@@ -66,7 +66,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 			g->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 			renderChessboard(g, p->width(), p->height(), role);
 			renderMoves(g, p->width(), p->height(), role, currentPosition, chessboard);
-			renderPieces(g, p->width(), p->height(), role, chessboard);
+			renderChessmen(g, p->width(), p->height(), role, chessboard);
 			delete g;
 			return true;
 		} else if (e->type() == QEvent::MouseButtonPress) {
@@ -76,7 +76,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 			}
 			auto ev = static_cast<QMouseEvent *>(e);
 			Position position = getPositionXY(ev->x(), ev->y(), p->width(), p->height(), role);
-			if (position.first < 0 || position.first >= ranks || position.second < 0 || position.second >= ranks) {
+			if (isOutOfRange(position)) {
 				currentPosition = nullPosition;
 			} else if (chessboard[position].first == role) {
 				currentPosition = position;
@@ -99,22 +99,34 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 
 				timer.stop();
 
-				bool winFlag = (chessboard[position].second == ChessmanType::King);
+				bool captureFlag = (chessboard[position].second == ChessmanType::King);
 
-				moveChessman(currentPosition, position, chessboard);
-				sendMessage(tcpSocket, QString("move %1 %2 %3 %4;").arg(currentPosition.first).arg(currentPosition.second).arg(position.first).arg(position.second));
+				if (chessboard[currentPosition].second == ChessmanType::King && distance(currentPosition, position) == 2) {
+					// Castling
+					moveChessman(currentPosition, position, chessboard);
+					Position rook = position;
+					if (rook.first == 6) {
+						rook.first = 7;
+					} else if (rook.first == 2) {
+						rook.first = 0;
+					}
+					moveChessman(rook, midpoint(currentPosition, position), chessboard);
+					sendMessage(tcpSocket, QString("castle %1 %2 %3 %4 %5 %6;").arg(currentPosition.first).arg(currentPosition.second).arg(rook.first).arg(rook.second).arg(position.first).arg(position.second));
+				} else {
+					moveChessman(currentPosition, position, chessboard);
+					sendMessage(tcpSocket, QString("move %1 %2 %3 %4;").arg(currentPosition.first).arg(currentPosition.second).arg(position.first).arg(position.second));
 
-				if (promoteTo != ChessmanType::None) {
-					sendMessage(tcpSocket, QString("promote %1 %2 %3;").arg(position.first).arg(position.second).arg(qint32(promoteTo)));
+					if (promoteTo != ChessmanType::None) {
+						sendMessage(tcpSocket, QString("promote %1 %2 %3;").arg(position.first).arg(position.second).arg(qint32(promoteTo)));
 
-					chessboard[position] = Chessman(role, promoteTo);
+						chessboard[position] = Chessman(role, promoteTo);
+					}
 				}
-
 				currentRole = opponent(currentRole);
 
 				currentPosition = nullPosition;
 
-				if (winFlag) {
+				if (captureFlag) {
 					sendMessage(tcpSocket, "captured;");
 					gameWon(tr("You've successfully captured your opponent's king!"));
 					return true;
@@ -122,7 +134,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 
 				if (isStalemate(currentRole, chessboard)) {
 					sendMessage(tcpSocket, "stalemate;");
-					gameDrawn(tr("Stalemate!"));
+					gameDraw(tr("Stalemate!"));
 					return true;
 				}
 
@@ -150,9 +162,6 @@ void frmMain::dataArrival() {
 
 	for (qint32 i = 0; i < arrays.size(); ++i) {
 		QList<QString> tokens = QString::fromUtf8(arrays[i]).split(' ');
-
-		ui->txtCommands->append(QString::fromUtf8(arrays[i]));
-
 		assert(tokens.size() > 0);
 		if (tokens[0] == "role") {
 			assert(tokens.size() == 2);
@@ -163,7 +172,7 @@ void frmMain::dataArrival() {
 			timer.stop();
 
 			moveChessman(Position(tokens[1].toInt(), tokens[2].toInt()), Position(tokens[3].toInt(), tokens[4].toInt()), chessboard);
-			assert(currentRole != RoleType::Neither);
+
 			currentRole = opponent(currentRole);
 
 			ticksLeft = timeoutMove * milli;
@@ -197,13 +206,13 @@ void frmMain::dataArrival() {
 			assert(tokens.size() == 1);
 			if (drawAcceptanceConfirm.exec() == QMessageBox::Yes) {
 				sendMessage(tcpSocket, "accept;");
-				gameDrawn(tr("You have agreed the draw proposal."));
+				gameDraw(tr("You have agreed the draw proposal."));
 			} else {
 				sendMessage(tcpSocket, "reject;");
 			}
 		} else if (tokens[0] == "accept") {
 			assert(tokens.size() == 1);
-			gameDrawn(tr("Your opponent has agreed your draw proposal."));
+			gameDraw(tr("Your opponent has agreed your draw proposal."));
 		} else if (tokens[0] == "reject") {
 			assert(tokens.size() == 1);
 			drawRejected.exec();
@@ -247,10 +256,24 @@ void frmMain::dataArrival() {
 			this->update();
 		} else if (tokens[0] == "stalemate") {
 			assert(tokens.size() == 1);
-			gameDrawn(tr("Stalemate!"));
+			gameDraw(tr("Stalemate!"));
 		} else if (tokens[0] == "checkmate") {
 			assert(tokens.size() == 1);
 			gameLost(tr("Checkmate!"));
+		} else if (tokens[0] == "castle") {
+			assert(tokens.size() == 7);
+			Position king(tokens[1].toInt(), tokens[2].toInt()),
+					 rook(tokens[3].toInt(), tokens[4].toInt()),
+					 kingTarget(tokens[5].toInt(), tokens[6].toInt()),
+					 rookTarget = midpoint(king, kingTarget);
+			moveChessman(king, kingTarget, chessboard);
+			moveChessman(rook, rookTarget, chessboard);
+			currentRole = opponent(currentRole);
+
+			ticksLeft = timeoutMove * milli;
+			lastTick = QDateTime::currentMSecsSinceEpoch();
+			timer.start();
+			this->update();
 		}
 	}
 }
@@ -298,7 +321,7 @@ void frmMain::gameLost(const QString &prompt) {
 	this->close();
 }
 
-void frmMain::gameDrawn(const QString &prompt) {
+void frmMain::gameDraw(const QString &prompt) {
 	timer.stop();
 	closeAllDialogs();
 	QMessageBox::information(this, tr("Draw!"), prompt);

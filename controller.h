@@ -6,7 +6,12 @@
 
 #include "global.h"
 
+bool isOutOfRange(const Position &position);
+
 RoleType opponent(RoleType role);
+
+qint32 distance(Position a, Position b);
+Position midpoint(Position a, Position b);
 
 quint32 cartesianToSequential(const Position &cartesian);
 Position sequentialToCartesian(quint32 sequential);
@@ -20,6 +25,7 @@ Position getPositionXY(qint32 x, qint32 y, qint32 width, qint32 height, RoleType
 
 PositionSet attackRange(Position from, RoleType role, const Chessboard &chessboard);
 PositionSet moveRange(Position from, RoleType role, const Chessboard &chessboard);
+PositionSet castleRange(Position king, RoleType role, const Chessboard &chessboard);
 
 bool isAttacking(Position from, Position to, RoleType fromRole, const Chessboard &chessboard);
 bool isMovePossible(Position from, Position to, RoleType fromRole, const Chessboard &chessboard);

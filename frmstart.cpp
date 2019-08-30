@@ -93,6 +93,12 @@ void frmStart::on_btnCancel_clicked() {
 		tcpSocket->abort();
 	}
 
+	delete tcpServer;
+	tcpServer = nullptr;
+
+	delete tcpSocket;
+	tcpSocket = nullptr;
+
 	ui->btnCancel->setEnabled(false);
 	ui->btnStart->setEnabled(true);
 

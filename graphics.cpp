@@ -33,7 +33,7 @@ void renderChessboard(QPainter *canvas, qint32 width, qint32 height, RoleType ro
 	canvas->restore();
 }
 
-void renderPieces(QPainter *canvas, qint32 width, qint32 height, RoleType role, const Chessboard &chessboard) {
+void renderChessmen(QPainter *canvas, qint32 width, qint32 height, RoleType role, const Chessboard &chessboard) {
 	if (role == RoleType::Neither) {
 		return;
 	}
