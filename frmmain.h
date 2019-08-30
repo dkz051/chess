@@ -33,7 +33,7 @@ private slots:
 
 	void gameWon(const QString &prompt);
 	void gameLost(const QString &prompt);
-	void gameDrawn(const QString &prompt);
+	void gameDraw(const QString &prompt);
 
 	void on_btnExit_clicked();
 	void closeAllDialogs();
