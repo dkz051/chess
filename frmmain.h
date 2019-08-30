@@ -21,28 +21,25 @@ public:
 	~frmMain();
 
 public slots:
-	void setNetWork(QTcpServer *server, QTcpSocket *socket);
 	void setGame(RoleType role);
+	void setNetWork(QTcpServer *server, QTcpSocket *socket);
 
 private slots:
-	void dataArrival();
-
-	void on_btnResign_clicked();
-
 	void onTimeout();
+	void dataArrival();
 
 	void gameWon(const QString &prompt);
 	void gameLost(const QString &prompt);
 	void gameDraw(const QString &prompt);
 
-	void on_btnExit_clicked();
 	void closeAllDialogs();
+	void setCountdown(qint64 ticks);
 
-	void on_btnProposeDraw_clicked();
-
+	void on_btnExit_clicked();
 	void on_btnLoad_clicked();
-
 	void on_btnSave_clicked();
+	void on_btnResign_clicked();
+	void on_btnProposeDraw_clicked();
 
 protected:
 	bool eventFilter(QObject *o, QEvent *e);
@@ -107,7 +104,7 @@ private:
 	QMessageBox loadConfirm = QMessageBox(
 		QMessageBox::Question,
 		tr("Confirm?"),
-		tr("Are you sure you are loading another endgame?\nThis needs your opponent's acceptance."),
+		tr("Are you sure you are loading another game?\nThis needs your opponent's acceptance."),
 		QMessageBox::Yes | QMessageBox::No,
 		this
 	);
@@ -115,7 +112,7 @@ private:
 	QMessageBox loadAcceptConfirm = QMessageBox(
 		QMessageBox::Question,
 		tr("Confirm?"),
-		tr("Your opponent has proposed loading another endgame.\nAccept?\nIf you choose [yes], you will have to wait for your opponent loading endgame file."),
+		tr("Your opponent has proposed loading another game.\nAccept?\nIf you choose [yes], you will have to wait for your opponent loading game file."),
 		QMessageBox::Yes | QMessageBox::No,
 		this
 	);
@@ -123,7 +120,7 @@ private:
 	QMessageBox loadRefused = QMessageBox(
 		QMessageBox::Warning,
 		tr("Rejected"),
-		tr("Your opponent has rejected loading another endgame.\nThe current game continues."),
+		tr("Your opponent has rejected loading another game.\nThe current game continues."),
 		QMessageBox::Ok,
 		this
 	);

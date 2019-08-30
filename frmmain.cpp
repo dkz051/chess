@@ -47,6 +47,8 @@ void frmMain::setGame(RoleType role) {
 	connected = true;
 	ticksLeft = timeoutMove * milli;
 	lastTick = QDateTime::currentMSecsSinceEpoch();
+	ui->lblThisRole->setText(role == RoleType::White ? tr("White") : tr("Black"));
+	ui->lblRole->setText(role == currentRole ? tr("You") : tr("Opponent"));
 	if (role == currentRole) {
 		timer.start();
 	} else {
@@ -132,6 +134,7 @@ bool frmMain::eventFilter(QObject *o, QEvent *e) {
 					}
 				}
 				currentRole = opponent(currentRole);
+				ui->lblRole->setText(role == currentRole ? tr("You") : tr("Opponent"));
 
 				currentPosition = nullPosition;
 
@@ -180,6 +183,7 @@ void frmMain::dataArrival() {
 			moveChessman(Position(tokens[1].toInt(), tokens[2].toInt()), Position(tokens[3].toInt(), tokens[4].toInt()), chessboard);
 
 			currentRole = opponent(currentRole);
+			ui->lblRole->setText(role == currentRole ? tr("You") : tr("Opponent"));
 
 			ticksLeft = timeoutMove * milli;
 			lastTick = QDateTime::currentMSecsSinceEpoch();
@@ -194,9 +198,7 @@ void frmMain::dataArrival() {
 			gameWon(tr("Your opponent has resigned. Congratulations!"));
 		} else if (tokens[0] == "countdown") {
 			assert(tokens.size() == 2);
-
-			qint64 ticks = tokens[1].toInt();
-			ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(ticks / milli).arg((ticks % milli) / 10, 2, 10, QChar('0')));
+			setCountdown(tokens[1].toLongLong());
 		} else if (tokens[0] == "timeout") {
 			assert(tokens.size() == 1);
 
@@ -235,14 +237,14 @@ void frmMain::dataArrival() {
 		} else if (tokens[0] == "allow") {
 			assert(tokens.size() == 1);
 			timer.stop();
-			QFileDialog dlgFile(this, tr("Select Endgame File"), "./", tr("All Files (*.*)"));
+			QFileDialog dlgFile(this, tr("Select Game File"), "./", tr("All Files (*.*)"));
 			dlgFile.setFileMode(QFileDialog::ExistingFile);
 			while (true) {
 				if (dlgFile.exec()) {
 					QStringList files = dlgFile.selectedFiles();
 					assert(files.size() >= 1);
 					if (chessboard.loadLocalFile(files[0], currentRole)) {
-						sendMessage(tcpSocket, QString("endgame %1 %2;").arg(chessboard.serialize()).arg(qint32(currentRole)));
+						sendMessage(tcpSocket, QString("game %1 %2;").arg(chessboard.serialize()).arg(qint32(currentRole)));
 						role = (rand() % 2 == 0 ? RoleType::White : RoleType::Black);
 						sendMessage(tcpSocket, QString("role %1;").arg(role == RoleType::White ? "black" : "white"));
 						break;
@@ -253,7 +255,7 @@ void frmMain::dataArrival() {
 				ticksLeft = timeoutMove * milli;
 				timer.start();
 			}
-		} else if (tokens[0] == "endgame") {
+		} else if (tokens[0] == "game") {
 			assert(tokens.size() == 3);
 			chessboard.deserialize(tokens[1]);
 			currentRole = RoleType(tokens[2].toInt());
@@ -272,6 +274,7 @@ void frmMain::dataArrival() {
 			moveChessman(king, kingTarget, chessboard);
 			moveChessman(rook, rookTarget, chessboard);
 			currentRole = opponent(currentRole);
+			ui->lblRole->setText(role == currentRole ? tr("You") : tr("Opponent"));
 
 			ticksLeft = timeoutMove * milli;
 			lastTick = QDateTime::currentMSecsSinceEpoch();
@@ -298,7 +301,7 @@ void frmMain::onTimeout() {
 		currentPosition = nullPosition;
 	}
 
-	ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(ticksLeft / milli).arg((ticksLeft % milli) / 10, 2, 10, QChar('0')));
+	setCountdown(ticksLeft);
 	if (ticksLeft == 0) {
 		sendMessage(tcpSocket, "timeout;");
 		timer.stop();
@@ -377,5 +380,17 @@ void frmMain::on_btnSave_clicked() {
 		QStringList files = dlgFile.selectedFiles();
 		assert(files.size() >= 1);
 		chessboard.saveLocalFile(files[0], currentRole);
+	}
+}
+
+void frmMain::setCountdown(qint64 ticks) {
+	qint64 minutes = (ticks / milli) / second;
+	qint64 seconds = (ticks / milli) % second;
+	qint64 centiseconds = (ticks % milli) / (milli / centi);
+
+	if (minutes > 0) {
+		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1:%2</span><span style=\"font-size:10pt;\">.%3</span></p></body></html>").arg(minutes).arg(seconds).arg(centiseconds, 2, 10, QChar('0')));
+	} else {
+		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(seconds).arg(centiseconds, 2, 10, QChar('0')));
 	}
 }

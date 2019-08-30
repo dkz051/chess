@@ -51,7 +51,9 @@ const QColor colorPromoteTarget(25, 220, 184, 128);
 const qint32 timeoutMove = 150;
 const qint32 timeoutConnection = 15;
 
+const qint32 centi = 100;
 const qint32 milli = 1000;
+const qint32 second = 60;
 
 const RoleType firstRole = RoleType::White;
 
