@@ -54,5 +54,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
 	chess.qrc
 
-RC_FILE += \
-	chess.rc
+RC_ICONS += \
+	chess.ico
