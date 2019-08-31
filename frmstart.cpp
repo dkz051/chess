@@ -110,7 +110,7 @@ void frmStart::on_btnCancel_clicked() {
 
 	ui->btnStart->setText(tr("S&tart"));
 
-	if (!ui->chkAnyIp->isChecked()) {
+	if (!ui->chkAnyIp->isChecked() || !ui->chkAnyIp->isEnabled()) {
 		ui->txtServerIp->setEnabled(true);
 	}
 	ui->txtPort->setEnabled(true);
