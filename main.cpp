@@ -1,3 +1,4 @@
+#include <QFont>
 #include <QDateTime>
 #include <QApplication>
 
@@ -10,6 +11,11 @@ int main(int argc, char *argv[]) {
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	QApplication app(argc, argv);
+
+	QFont font;
+	font.setFamily(font.defaultFamily());
+	app.setFont(font);
+
 	frmStart *dlgStart = new frmStart;
 	dlgStart->show();
 
