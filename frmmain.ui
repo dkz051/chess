@@ -18,7 +18,7 @@
   </property>
   <property name="font">
    <font>
-    <family>Segoe UI</family>
+    <family>San Francisco,Segoe UI,Ubuntu,sans</family>
    </font>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,37 @@
    <bool>true</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">font-family: 'San Francisco', 'Segoe UI', 'Ubuntu', sans;
+
+QPushButton {
+	color: green;
+	background-color: rgb(223, 223, 223);
+	border-style: outset;
+	border-width: 0.5px;
+	border-color: rgb(10, 45, 110);
+	border-radius: 10px;
+	padding: 4px;
+}
+
+QPushButton:pressed {
+	background-color: rgb(40, 85, 20);
+	border-style: inset;
+	padding-left: 5px;
+	padding-top: 5px;
+}
+
+QPushButton:flat {
+	border: 2pt solid red;
+}
+
+QPushButton:hover {
+	color: #0000ff;
+	background-color: rgb(210, 205, 205);
+	border-style: inset;
+	padding-left: 6px;
+	padding-top: 6px;
+}
+</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -39,7 +69,7 @@
      <widget class="QWidget" name="canvas" native="true">
       <property name="font">
        <font>
-        <family>Segoe UI</family>
+        <family>San Francisco,Segoe UI,Ubuntu,sans</family>
         <pointsize>9</pointsize>
        </font>
       </property>
@@ -61,7 +91,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Segoe UI</family>
+        <family>San Francisco,Segoe UI,Ubuntu,sans</family>
         <pointsize>9</pointsize>
        </font>
       </property>
@@ -77,9 +107,12 @@
         <widget class="QPushButton" name="btnLoad">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>&amp;Load Game</string>
@@ -90,7 +123,7 @@
         <spacer name="verticalSpacer">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -551,7 +584,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>12</pointsize>
           </font>
          </property>
@@ -570,7 +603,7 @@
         <widget class="Line" name="line_2">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1031,7 +1064,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>16</pointsize>
            <stylestrategy>PreferDefault</stylestrategy>
            <kerning>true</kerning>
@@ -1052,9 +1085,12 @@
         <widget class="QPushButton" name="btnExit">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>E&amp;xit Game</string>
@@ -1507,7 +1543,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>12</pointsize>
           </font>
          </property>
@@ -1526,9 +1562,12 @@
         <widget class="QPushButton" name="btnProposeDraw">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>&amp;Propose Draw</string>
@@ -1981,7 +2020,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>12</pointsize>
           </font>
          </property>
@@ -2000,9 +2039,12 @@
         <widget class="QPushButton" name="btnResign">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>&amp;Resign</string>
@@ -2013,9 +2055,12 @@
         <widget class="QPushButton" name="btnSave">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>&amp;Save Current Game</string>
@@ -2026,7 +2071,7 @@
         <widget class="Line" name="line">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -2481,7 +2526,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>16</pointsize>
           </font>
          </property>
@@ -2500,7 +2545,7 @@
         <widget class="Line" name="line_3">
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -2955,7 +3000,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Segoe UI</family>
+           <family>San Francisco,Segoe UI,Ubuntu,sans</family>
            <pointsize>16</pointsize>
           </font>
          </property>

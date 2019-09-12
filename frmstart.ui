@@ -18,11 +18,44 @@
   </property>
   <property name="font">
    <font>
-    <family>Segoe UI</family>
+    <family>San Francisco,Segoe UI,Ubuntu,sans</family>
    </font>
   </property>
   <property name="windowTitle">
    <string>Start Network Connection</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font-family: &quot;San Francisco&quot;, &quot;Segoe UI&quot;, &quot;Ubuntu&quot;, sans;
+
+QPushButton {
+	color: green;
+	background-color: rgb(223, 223, 223);
+	border-style: outset;
+	border-width: 0.5px;
+	border-color: rgb(10, 45, 110);
+	border-radius: 10px;
+	padding: 4px;
+}
+
+QPushButton:pressed {
+	background-color: rgb(40, 85, 20);
+	border-style: inset;
+	padding-left: 5px;
+	padding-top: 5px;
+}
+
+QPushButton:flat {
+	border: 2pt solid red;
+}
+
+QPushButton:hover {
+	color: #0000ff;
+	background-color: rgb(210, 205, 205);
+	border-style: inset;
+	padding-left: 6px;
+	padding-top: 6px;
+}
+</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

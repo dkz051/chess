@@ -48,7 +48,7 @@ const QColor colorCaptureTarget(225, 0, 0, 192);
 const QColor colorCastleTarget(184, 168, 174, 192);
 const QColor colorPromoteTarget(25, 220, 184, 192);
 
-const qint32 timeoutMove = 150;
+const qint32 timeoutMove = 60;
 const qint32 timeoutConnection = 15;
 
 const qint32 centi = 100;

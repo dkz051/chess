@@ -262,6 +262,7 @@ void frmMain::onDataArrival() {
 				ticksLeft = timeoutMove * milli;
 				timer.start();
 			}
+			ui->lblRole->setText(role == currentRole ? tr("You") : tr("Opponent"));
 		} else if (tokens[0] == "game") {
 			assert(tokens.size() == 3);
 			chessboard.deserialize(tokens[1]);
@@ -399,7 +400,7 @@ void frmMain::setCountdown(qint64 ticks) {
 	qint64 centiseconds = (ticks % milli) / (milli / centi);
 
 	if (minutes > 0) {
-		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1:%2</span><span style=\"font-size:10pt;\">.%3</span></p></body></html>").arg(minutes).arg(seconds, 2, 10, QChar('0')).arg(centiseconds, 2, 10, QChar('0')));
+		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1:%2</span><span style=\"font-size:10pt;\"></span></p></body></html>").arg(minutes).arg(seconds, 2, 10, QChar('0')));
 	} else {
 		ui->lblCountdown->setText(QString("<html><head/><body><p><span style=\"font-size:16pt;\">%1</span><span style=\"font-size:10pt;\">.%2</span></p></body></html>").arg(seconds).arg(centiseconds, 2, 10, QChar('0')));
 	}
